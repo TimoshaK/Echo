@@ -55,6 +55,7 @@ class TranscriptionEngine:
                 "type": "complete",
                 "text": result["text"],
                 "language": result.get("language", "unknown"),
+                "segments": result.get("segments", []) or [],
             })
         except Exception as e:
             self.progress_queue.put({
@@ -172,6 +173,8 @@ class TranscriberApp:
         self.engine = TranscriptionEngine()
         self.summarizer = SummarizationEngine()
         self.last_transcript = ""
+        self.last_segments: list = []
+        self.last_summary = ""
 
         self._build_ui()
 
@@ -571,6 +574,8 @@ class TranscriberApp:
             yscrollcommand=self.result_scrollbar.set
         )
 
+        self._build_save_buttons()
+
         # ---------------------------------------------------------
         # Footer
         # ---------------------------------------------------------
@@ -611,6 +616,119 @@ class TranscriberApp:
             side="right",
             padx=14,
         )
+
+    def _build_save_buttons(self) -> None:
+        """Build the output save buttons row."""
+        save_frame = tk.Frame(self.root, bg=self.bg_color)
+        save_frame.grid(row=5, column=0, sticky="ew", padx=12, pady=(0, 6))
+
+        btn_style = {
+            "font": ("Consolas", 9, "bold"),
+            "fg": self.text_color,
+            "bg": self.panel_color,
+            "activebackground": self.accent_dark,
+            "activeforeground": "#111111",
+            "disabledforeground": "#666666",
+            "relief": "flat",
+            "bd": 0,
+            "padx": 14,
+            "pady": 6,
+            "cursor": "hand2",
+        }
+
+        self.save_txt_btn = tk.Button(
+            save_frame,
+            text="SAVE .TXT",
+            command=self.save_transcription_txt,
+            state="disabled",
+            **btn_style,
+        )
+        self.save_txt_btn.pack(side="left", padx=(0, 8))
+
+        self.save_srt_btn = tk.Button(
+            save_frame,
+            text="SAVE .SRT",
+            command=self.save_transcription_srt,
+            state="disabled",
+            **btn_style,
+        )
+        self.save_srt_btn.pack(side="left")
+
+    @staticmethod
+    def _time_to_srt(seconds: float, offset: float = 0.0) -> str:
+        total = int(seconds + offset)
+        millis = int((seconds + offset - total) * 1000)
+        hours, rem = divmod(total, 3600)
+        minutes, secs = divmod(rem, 60)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+
+    def _base_name(self) -> str:
+        if not self.selected_file:
+            return "transcript"
+        return os.path.splitext(os.path.basename(self.selected_file))[0]
+
+    def _srt_content(self) -> str:
+        lines = []
+        for idx, seg in enumerate(self.last_segments, start=1):
+            start = self._time_to_srt(float(seg.get("start", 0)))
+            end = self._time_to_srt(float(seg.get("end", 0)))
+            text = str(seg.get("text", "")).strip()
+            lines.append(f"{idx}\n{start} --> {end}\n{text}\n")
+        return "\n".join(lines)
+
+    def save_transcription_txt(self) -> None:
+        """Save transcription (and optional summary) to a .txt file."""
+        if not self.last_transcript:
+            return
+
+        path = filedialog.asksaveasfilename(
+            title="Сохранить как .txt",
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt")],
+            initialfile=f"{self._base_name()}_transcription.txt",
+        )
+        if not path:
+            return
+
+        content = self.last_transcript
+        if self.last_summary:
+            content += f"\n\n{'='*40}\nКОНСПЕКТ\n{'='*40}\n\n{self.last_summary}"
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content + "\n")
+        except OSError as e:
+            messagebox.showerror("Ошибка сохранения", f"Не удалось сохранить файл.\n\n{e}")
+            return
+
+        messagebox.showinfo("Сохранено", f"Файл сохранён:\n{path}")
+
+    def save_transcription_srt(self) -> None:
+        """Save transcription as .srt subtitles with timestamps."""
+        if not self.last_segments:
+            messagebox.showinfo(
+                "Нет данных",
+                "Сначала выполните транскрипцию, чтобы сохранить субтитры.",
+            )
+            return
+
+        path = filedialog.asksaveasfilename(
+            title="Сохранить как .srt",
+            defaultextension=".srt",
+            filetypes=[("Subtitle files", "*.srt")],
+            initialfile=f"{self._base_name()}.srt",
+        )
+        if not path:
+            return
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(self._srt_content())
+        except OSError as e:
+            messagebox.showerror("Ошибка сохранения", f"Не удалось сохранить файл.\n\n{e}")
+            return
+
+        messagebox.showinfo("Сохранено", f"Файл сохранён:\n{path}")
 
     def select_file(self) -> None:
         """Open file dialog and handle selection."""
@@ -716,7 +834,10 @@ class TranscriberApp:
         self.result_text.configure(state="disabled")
 
         self.last_transcript = message["text"]
+        self.last_segments = message.get("segments", []) or []
         self.summary_btn.configure(state="normal")
+        self.save_txt_btn.configure(state="normal")
+        self.save_srt_btn.configure(state="normal")
 
         self.transcribe_btn.configure(state="normal")
 
@@ -734,6 +855,7 @@ class TranscriberApp:
         self.result_text.delete("1.0", tk.END)
         self.result_text.insert("1.0", message["text"])
         self.result_text.configure(state="disabled")
+        self.last_summary = message["text"]
         self.summary_btn.configure(state="normal")
 
     def _handle_summary_error(self, error: str) -> None:
