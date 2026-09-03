@@ -1,0 +1,5 @@
+openai-whisper>=20250625
+torch>=2.14.0
+numpy>=2.5.0
+tqdm>=4.70.0
+srt>=3.5.3
