@@ -25,8 +25,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. User can launch the application and see a window with a "Select File" button and area to display the file path
   2. User can click "Select File" to open a file browser and choose an audio file
   3. User sees the full path of the selected file displayed in the interface
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
+
+Plans:
+- [ ] 01-01-PLAN.md — Project setup + tkinter GUI with file selection
 
 ### Phase 2: Transcription Engine
 **Goal**: Users can transcribe selected audio files to text with one click
@@ -47,5 +50,5 @@ Phases execute in numeric order: 1 → 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. GUI & File Selection | 0/TBD | Not started | - |
+| 1. GUI & File Selection | 0/1 | Not started | - |
 | 2. Transcription Engine | 0/TBD | Not started | - |
