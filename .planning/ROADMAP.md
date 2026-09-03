@@ -44,8 +44,8 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01-PLAN.md — Transcription engine core with threading pattern
-- [ ] 02-02-PLAN.md — GUI integration with error handling
+- [x] 02-01-PLAN.md — Transcription engine core with threading pattern
+- [x] 02-02-PLAN.md — GUI integration with error handling
 
 ## Progress
 
