@@ -12,8 +12,10 @@ A focused two-phase build that delivers a complete desktop transcription tool. P
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: GUI & File Selection** - Project setup, tkinter interface, and audio file selection dialog
-- [ ] **Phase 2: Transcription Engine** - Whisper integration, transcription execution, result display, and error handling
+- [x] **Phase 1: GUI & File Selection** - Project setup, tkinter interface, and audio file selection dialog
+- [x] **Phase 2: Transcription Engine** - Whisper integration, transcription execution, result display, and error handling
+- [ ] **Phase 3: Summarization** - Generate brief summary of transcription via OpenRouter LLM API
+- [ ] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
 
 ## Phase Details
 
@@ -47,6 +49,35 @@ Plans:
 - [x] 02-01-PLAN.md — Transcription engine core with threading pattern
 - [x] 02-02-PLAN.md — GUI integration with error handling
 
+### Phase 3: Summarization
+**Goal**: User can generate a brief summary (конспект) of the transcription using a pluggable OpenRouter LLM API
+**Depends on**: Phase 2
+**Requirements**: SUMR-01, SUMR-02
+**Success Criteria** (what must be TRUE):
+  1. User can generate a summary of the transcription text with one action
+  2. LLM provider is pluggable (configurable base URL + API key), independent from the app
+  3. User sees the summary displayed in the interface
+**Plans**: 1 plan
+**UI hint**: yes
+
+Plans:
+- [ ] 03-01-PLAN.md — OpenRouter summarization integration with pluggable API config
+
+### Phase 4: Output Storage
+**Goal**: User can choose a storage location and save the transcription + summary in .txt and .srt formats
+**Depends on**: Phase 3
+**Requirements**: STOR-01, STOR-02, STOR-03, STOR-04
+**Success Criteria** (what must be TRUE):
+  1. User can choose a save location via dialog
+  2. User can save transcription to a .txt file
+  3. User can save transcription to a .srt subtitle file
+  4. Summary can be included in the saved output
+**Plans**: 1 plan
+**UI hint**: yes
+
+Plans:
+- [ ] 04-01-PLAN.md — Save results in .txt and .srt formats with folder selection
+
 ## Progress
 
 **Execution Order:**
@@ -55,4 +86,6 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. GUI & File Selection | 1/1 | Completed | 2026-09-03 |
-| 2. Transcription Engine | 0/2 | Not started | - |
+| 2. Transcription Engine | 2/2 | Completed | 2026-09-03 |
+| 3. Summarization | 0/1 | Not started | - |
+| 4. Output Storage | 0/1 | Not started | - |

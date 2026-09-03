@@ -1,12 +1,17 @@
 """Whisper Transcriber — GUI application for audio transcription."""
 
+import json
 import os
 import queue
 import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+import urllib.request
+import urllib.error
 
 import whisper
+
+import app_config
 
 
 class TranscriptionEngine:
@@ -58,65 +63,554 @@ class TranscriptionEngine:
             })
 
 
+class SummarizationEngine:
+    """Pluggable LLM summarization via OpenAI-compatible API (OpenRouter)."""
+
+    def __init__(self) -> None:
+        self.config = app_config.load_config()
+        self.progress_queue: queue.Queue = queue.Queue()
+
+    def is_configured(self) -> bool:
+        llm = self.config.get("llm", {})
+        return bool(llm.get("api_key")) and llm.get("enabled")
+
+    def update_config(self, api_key: str, base_url: str, model: str, enabled: bool) -> None:
+        self.config["llm"] = {
+            "api_key": api_key.strip(),
+            "base_url": base_url.strip().rstrip("/"),
+            "model": model.strip(),
+            "enabled": enabled,
+        }
+        app_config.save_config(self.config)
+
+    def summarize(self, text: str) -> str:
+        """Generate a summary of text via the configured LLM API."""
+        if not self.is_configured():
+            raise RuntimeError(
+                "LLM API не настроен. Откройте настройки и укажите ключ API."
+            )
+
+        llm = self.config["llm"]
+        prompt = (
+            "Составь краткий конспект следующей транскрипции аудио: "
+            "выдели основные темы и ключевые идеи. Пиши на языке исходного аудио.\n\n"
+            f"ТРАНСКРИПЦИЯ:\n{text}"
+        )
+        payload = json.dumps({
+            "model": llm["model"],
+            "messages": [
+                {"role": "system", "content": "Ты — ассистент для создания конспектов аудио."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.3,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            f"{llm['base_url']}/chat/completions",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {llm['api_key']}",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", errors="replace")[:500]
+            raise RuntimeError(f"Ошибка API ({e.code}): {detail}")
+        except urllib.error.URLError as e:
+            raise RuntimeError(f"Сетевая ошибка: {e.reason}")
+
+        try:
+            return data["choices"][0]["message"]["content"].strip()
+        except (KeyError, IndexError):
+            raise RuntimeError("Неожиданный ответ от API.")
+
+    def start_summary(self, text: str) -> None:
+        thread = threading.Thread(
+            target=self._run_summary,
+            args=(text,),
+            daemon=True,
+        )
+        thread.start()
+
+    def _run_summary(self, text: str) -> None:
+        try:
+            self.progress_queue.put({"type": "summary_status", "text": "Генерация конспекта..."})
+            summary = self.summarize(text)
+            self.progress_queue.put({"type": "summary_complete", "text": summary})
+        except Exception as e:
+            self.progress_queue.put({"type": "summary_error", "error": str(e)})
+
+
 class TranscriberApp:
-    """Main application window for Whisper Transcriber."""
+    """Main application window for Whisper Transcription."""
 
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("Whisper Transcriber")
-        self.root.geometry("600x450")
-        self.root.minsize(500, 350)
+        # Industrial UI colors
+        self.bg_color = "#252525"
+        self.panel_color = "#303030"
+        self.panel_dark = "#1D1D1D"
+        self.accent_color = "#F2A900"
+        self.accent_dark = "#B87900"
+        self.text_color = "#E6E6E6"
+        self.muted_color = "#929292"
+        self.success_color = "#7DBE3C"
+        self.error_color = "#D9534F"
+
+        self.root.title("Echo // Audio Processing Unit")
+        self.root.geometry("900x650")
+        self.root.minsize(750, 550)
+        self.root.configure(bg=self.bg_color)
+        
 
         self.selected_file: str | None = None
         self.engine = TranscriptionEngine()
+        self.summarizer = SummarizationEngine()
+        self.last_transcript = ""
 
         self._build_ui()
 
     def _build_ui(self) -> None:
-        """Construct the main window widgets."""
-        # Row 0: Select File button + File path display
-        self.select_btn = ttk.Button(
-            self.root, text="Выбрать файл", command=self.select_file
-        )
-        self.select_btn.grid(row=0, column=0, sticky="w", padx=8, pady=8)
+        """Construct the industrial-style main window."""
 
-        self.file_var = tk.StringVar(value="Файл не выбран")
-        self.file_entry = ttk.Entry(
-            self.root, textvariable=self.file_var, width=40
+        # ---------------------------------------------------------
+        # Root layout
+        # ---------------------------------------------------------
+
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(3, weight=1)
+
+        # ---------------------------------------------------------
+        # Header
+        # ---------------------------------------------------------
+
+        header = tk.Frame(
+            self.root,
+            bg=self.panel_dark,
+            height=70,
         )
-        self.file_entry.grid(row=0, column=1, sticky="ew", padx=8, pady=8)
+        header.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=12,
+            pady=(12, 6),
+        )
+        header.grid_propagate(False)
+
+        title_frame = tk.Frame(
+            header,
+            bg=self.panel_dark,
+        )
+        title_frame.pack(side="left", padx=18, pady=10)
+
+        tk.Label(
+            title_frame,
+            text="ECHO",
+            font=("Segoe UI", 22, "bold"),
+            fg=self.accent_color,
+            bg=self.panel_dark,
+        ).pack(anchor="w")
+
+        tk.Label(
+            title_frame,
+            text="AUDIO PROCESSING UNIT",
+            font=("Consolas", 9),
+            fg=self.muted_color,
+            bg=self.panel_dark,
+        ).pack(anchor="w")
+
+        tk.Label(
+            header,
+            text="FICSIT // LOCAL TERMINAL",
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.panel_dark,
+        ).pack(side="right", padx=18)
+
+        # ---------------------------------------------------------
+        # Audio input panel
+        # ---------------------------------------------------------
+
+        input_panel = tk.Frame(
+            self.root,
+            bg=self.panel_color,
+            highlightbackground=self.accent_dark,
+            highlightthickness=1,
+        )
+        input_panel.grid(
+            row=1,
+            column=0,
+            sticky="ew",
+            padx=12,
+            pady=6,
+        )
+
+        input_panel.grid_columnconfigure(1, weight=1)
+
+        tk.Label(
+            input_panel,
+            text="AUDIO INPUT",
+            font=("Consolas", 10, "bold"),
+            fg=self.accent_color,
+            bg=self.panel_color,
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=14,
+            pady=(10, 6),
+        )
+
+        self.select_btn = tk.Button(
+            input_panel,
+            text="SELECT FILE",
+            command=self.select_file,
+            font=("Consolas", 10, "bold"),
+            fg="#111111",
+            bg=self.accent_color,
+            activebackground=self.accent_dark,
+            activeforeground="#111111",
+            relief="flat",
+            bd=0,
+            padx=18,
+            pady=7,
+            cursor="hand2",
+        )
+        self.select_btn.grid(
+            row=1,
+            column=0,
+            padx=(14, 8),
+            pady=(0, 12),
+        )
+
+        self.file_var = tk.StringVar(value="NO FILE SELECTED")
+
+        self.file_entry = tk.Entry(
+            input_panel,
+            textvariable=self.file_var,
+            font=("Consolas", 10),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            insertbackground=self.text_color,
+            relief="flat",
+            bd=0,
+        )
+        self.file_entry.grid(
+            row=1,
+            column=1,
+            sticky="ew",
+            padx=(0, 14),
+            pady=(0, 12),
+            ipady=7,
+        )
         self.file_entry.configure(state="readonly")
 
-        # Row 1: Transcribe button + Status label
-        self.transcribe_btn = ttk.Button(
-            self.root, text="Транскрибировать", command=self.start_transcription,
-            state="disabled"
-        )
-        self.transcribe_btn.grid(row=1, column=0, sticky="w", padx=8, pady=8)
+        # ---------------------------------------------------------
+        # Processing panel
+        # ---------------------------------------------------------
 
-        self.status_label = ttk.Label(
+        processing_panel = tk.Frame(
             self.root,
-            text="Нажмите «Выбрать файл», чтобы выбрать аудиофайл для транскрипции",
-            wraplength=560,
+            bg=self.bg_color,
         )
-        self.status_label.grid(row=1, column=1, sticky="w", padx=8, pady=8)
+        processing_panel.grid(
+            row=2,
+            column=0,
+            sticky="ew",
+            padx=12,
+            pady=6,
+        )
 
-        # Row 2: Result text area + scrollbar
-        result_frame = ttk.Frame(self.root)
-        result_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=8, pady=(8, 8))
+        processing_panel.grid_columnconfigure(0, weight=1)
+        processing_panel.grid_columnconfigure(1, weight=1)
+
+        # Transcription unit
+
+        unit_panel = tk.Frame(
+            processing_panel,
+            bg=self.panel_color,
+            highlightbackground=self.accent_dark,
+            highlightthickness=1,
+        )
+        unit_panel.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+            padx=(0, 6),
+        )
+
+        tk.Label(
+            unit_panel,
+            text="TRANSCRIPTION UNIT",
+            font=("Consolas", 10, "bold"),
+            fg=self.accent_color,
+            bg=self.panel_color,
+        ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        tk.Label(
+            unit_panel,
+            text="WHISPER ENGINE // BASE MODEL",
+            font=("Consolas", 8),
+            fg=self.muted_color,
+            bg=self.panel_color,
+        ).pack(anchor="w", padx=14)
+
+        self.transcribe_btn = tk.Button(
+            unit_panel,
+            text="START TRANSCRIPTION",
+            command=self.start_transcription,
+            state="disabled",
+            font=("Consolas", 11, "bold"),
+            fg="#111111",
+            bg=self.accent_color,
+            activebackground=self.accent_dark,
+            activeforeground="#111111",
+            disabledforeground="#666666",
+            relief="flat",
+            bd=0,
+            padx=20,
+            pady=9,
+            cursor="hand2",
+        )
+        self.transcribe_btn.pack(
+            anchor="w",
+            padx=14,
+            pady=(10, 12),
+        )
+
+        # System status
+
+        status_panel = tk.Frame(
+            processing_panel,
+            bg=self.panel_color,
+            highlightbackground=self.accent_dark,
+            highlightthickness=1,
+        )
+        status_panel.grid(
+            row=0,
+            column=1,
+            sticky="nsew",
+            padx=(6, 0),
+        )
+
+        tk.Label(
+            status_panel,
+            text="SYSTEM STATUS",
+            font=("Consolas", 10, "bold"),
+            fg=self.accent_color,
+            bg=self.panel_color,
+        ).pack(anchor="w", padx=14, pady=(10, 4))
+
+        self.status_indicator = tk.Label(
+            status_panel,
+            text="● READY",
+            font=("Consolas", 11, "bold"),
+            fg=self.success_color,
+            bg=self.panel_color,
+        )
+        self.status_indicator.pack(
+            anchor="w",
+            padx=14,
+            pady=(3, 0),
+        )
+
+        self.status_label = tk.Label(
+            status_panel,
+            text="Select an audio file to begin",
+            font=("Consolas", 8),
+            fg=self.muted_color,
+            bg=self.panel_color,
+            anchor="w",
+        )
+        self.status_label.pack(
+            fill="x",
+            padx=14,
+            pady=(3, 10),
+        )
+
+        self.settings_btn = tk.Button(
+            status_panel,
+            text="API SETTINGS",
+            command=self.open_settings,
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            activebackground=self.accent_dark,
+            activeforeground="#111111",
+            relief="flat",
+            bd=0,
+            padx=14,
+            pady=6,
+            cursor="hand2",
+        )
+        self.settings_btn.pack(
+            anchor="w",
+            padx=14,
+            pady=(0, 6),
+        )
+
+        self.summary_btn = tk.Button(
+            status_panel,
+            text="GENERATE SUMMARY",
+            command=self.generate_summary,
+            state="disabled",
+            font=("Consolas", 10, "bold"),
+            fg="#111111",
+            bg=self.accent_color,
+            activebackground=self.accent_dark,
+            activeforeground="#111111",
+            disabledforeground="#666666",
+            relief="flat",
+            bd=0,
+            padx=18,
+            pady=8,
+            cursor="hand2",
+        )
+        self.summary_btn.pack(
+            anchor="w",
+            padx=14,
+            pady=(0, 12),
+        )
+
+        # ---------------------------------------------------------
+        # Output panel
+        # ---------------------------------------------------------
+
+        output_panel = tk.Frame(
+            self.root,
+            bg=self.panel_color,
+            highlightbackground=self.accent_dark,
+            highlightthickness=1,
+        )
+        output_panel.grid(
+            row=3,
+            column=0,
+            sticky="nsew",
+            padx=12,
+            pady=6,
+        )
+
+        output_panel.grid_columnconfigure(0, weight=1)
+        output_panel.grid_rowconfigure(1, weight=1)
+
+        tk.Label(
+            output_panel,
+            text="TRANSCRIPTION OUTPUT",
+            font=("Consolas", 10, "bold"),
+            fg=self.accent_color,
+            bg=self.panel_color,
+        ).grid(
+            row=0,
+            column=0,
+            sticky="w",
+            padx=14,
+            pady=(10, 6),
+        )
+
+        text_frame = tk.Frame(
+            output_panel,
+            bg=self.panel_dark,
+        )
+        text_frame.grid(
+            row=1,
+            column=0,
+            sticky="nsew",
+            padx=14,
+            pady=(0, 14),
+        )
+
+        text_frame.grid_columnconfigure(0, weight=1)
+        text_frame.grid_rowconfigure(0, weight=1)
 
         self.result_text = tk.Text(
-            result_frame, wrap="word", state="disabled", height=15
+            text_frame,
+            wrap="word",
+            state="disabled",
+            font=("Consolas", 10),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            insertbackground=self.accent_color,
+            selectbackground=self.accent_dark,
+            selectforeground="#111111",
+            relief="flat",
+            bd=0,
+            padx=12,
+            pady=12,
         )
-        self.result_scrollbar = ttk.Scrollbar(result_frame, command=self.result_text.yview)
-        self.result_text.configure(yscrollcommand=self.result_scrollbar.set)
 
-        self.result_text.pack(side="left", fill="both", expand=True)
-        self.result_scrollbar.pack(side="right", fill="y")
+        self.result_text.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
 
-        # Column and row weights
-        self.root.grid_columnconfigure(1, weight=1)
-        self.root.grid_rowconfigure(2, weight=1)
+        self.result_scrollbar = tk.Scrollbar(
+            text_frame,
+            command=self.result_text.yview,
+            bg=self.panel_color,
+            troughcolor=self.panel_dark,
+            activebackground=self.accent_color,
+            relief="flat",
+            bd=0,
+        )
+
+        self.result_scrollbar.grid(
+            row=0,
+            column=1,
+            sticky="ns",
+        )
+
+        self.result_text.configure(
+            yscrollcommand=self.result_scrollbar.set
+        )
+
+        # ---------------------------------------------------------
+        # Footer
+        # ---------------------------------------------------------
+
+        footer = tk.Frame(
+            self.root,
+            bg=self.panel_dark,
+            height=32,
+        )
+        footer.grid(
+            row=4,
+            column=0,
+            sticky="ew",
+            padx=12,
+            pady=(6, 12),
+        )
+        footer.grid_propagate(False)
+
+        self.language_label = tk.Label(
+            footer,
+            text="LANGUAGE: --",
+            font=("Consolas", 8, "bold"),
+            fg=self.muted_color,
+            bg=self.panel_dark,
+        )
+        self.language_label.pack(
+            side="left",
+            padx=14,
+        )
+
+        tk.Label(
+            footer,
+            text="ECHO // FICSIT AUDIO UNIT // ONLINE",
+            font=("Consolas", 8),
+            fg=self.muted_color,
+            bg=self.panel_dark,
+        ).pack(
+            side="right",
+            padx=14,
+        )
 
     def select_file(self) -> None:
         """Open file dialog and handle selection."""
@@ -142,7 +636,13 @@ class TranscriberApp:
             self.file_var.set(file_path)
             self.file_entry.configure(state="readonly")
             filename = os.path.basename(file_path)
-            self.status_label.configure(text=f"Выбран: {filename}")
+            self.status_indicator.configure(
+                text="● FILE READY",
+                fg=self.success_color,
+            )
+            self.status_label.configure(
+                text=f"INPUT ACCEPTED // {filename}"
+            )
             self.transcribe_btn.configure(state="normal")
 
     def start_transcription(self) -> None:
@@ -152,7 +652,13 @@ class TranscriberApp:
 
         # Disable button during processing
         self.transcribe_btn.configure(state="disabled")
-        self.status_label.configure(text="Выполняется транскрипция...")
+        self.status_indicator.configure(
+            text="● PROCESSING",
+            fg=self.accent_color,
+        )
+        self.status_label.configure(
+            text="WHISPER ENGINE // PROCESSING AUDIO..."
+        )
 
         # Clear previous results
         self.result_text.configure(state="normal")
@@ -188,21 +694,226 @@ class TranscriberApp:
 
     def _handle_transcription_complete(self, message: dict) -> None:
         """Handle successful transcription completion."""
-        # Update status with detected language
-        language = message.get("language", "неизвестный")
-        self.status_label.configure(text=f"Готово! Язык: {language}")
 
-        # Display transcription text
+        language = message.get("language", "unknown")
+
+        self.status_indicator.configure(
+            text="● COMPLETE",
+            fg=self.success_color,
+        )
+
+        self.status_label.configure(
+            text="PROCESSING COMPLETE"
+        )
+
+        self.language_label.configure(
+            text=f"LANGUAGE: {language.upper()}"
+        )
+
         self.result_text.configure(state="normal")
         self.result_text.delete("1.0", tk.END)
         self.result_text.insert("1.0", message["text"])
         self.result_text.configure(state="disabled")
 
-        # Re-enable transcribe button
+        self.last_transcript = message["text"]
+        self.summary_btn.configure(state="normal")
+
         self.transcribe_btn.configure(state="normal")
+
+    def _handle_summary_complete(self, message: dict) -> None:
+        """Handle successful summary generation."""
+
+        self.status_indicator.configure(
+            text="● SUMMARY READY",
+            fg=self.success_color,
+        )
+        self.status_label.configure(
+            text="CONSPECT GENERATED"
+        )
+        self.result_text.configure(state="normal")
+        self.result_text.delete("1.0", tk.END)
+        self.result_text.insert("1.0", message["text"])
+        self.result_text.configure(state="disabled")
+        self.summary_btn.configure(state="normal")
+
+    def _handle_summary_error(self, error: str) -> None:
+        """Handle summary generation error."""
+
+        self.status_indicator.configure(
+            text="● ERROR",
+            fg=self.error_color,
+        )
+        self.status_label.configure(
+            text="SUMMARY FAILED"
+        )
+        self.summary_btn.configure(state="normal")
+        messagebox.showerror(
+            "Ошибка конспекта",
+            f"Не удалось сгенерировать конспект.\n\n{error}",
+        )
+
+    def generate_summary(self) -> None:
+        """Generate a summary of the last transcript."""
+        if not self.last_transcript:
+            return
+
+        self.summary_btn.configure(state="disabled")
+        self.status_indicator.configure(
+            text="● SUMMARIZING",
+            fg=self.accent_color,
+        )
+        self.status_label.configure(
+            text="GENERATING CONSPECT..."
+        )
+        self.summarizer.start_summary(self.last_transcript)
+        self.poll_summary()
+
+    def poll_summary(self) -> None:
+        """Poll the summarizer's progress queue for updates."""
+        try:
+            while True:
+                message = self.summarizer.progress_queue.get_nowait()
+
+                if message["type"] == "summary_status":
+                    self.status_label.configure(text=message["text"])
+
+                elif message["type"] == "summary_complete":
+                    self._handle_summary_complete(message)
+                    return
+
+                elif message["type"] == "summary_error":
+                    self._handle_summary_error(message["error"])
+                    return
+
+        except queue.Empty:
+            self.root.after(100, self.poll_summary)
+
+    def open_settings(self) -> None:
+        """Open the LLM API settings dialog."""
+        settings = tk.Toplevel(self.root)
+        settings.title("API Settings")
+        settings.configure(bg=self.bg_color)
+        settings.geometry("480x360")
+        settings.resizable(False, False)
+        settings.transient(self.root)
+        settings.grab_set()
+
+        pad = {"padx": 14, "pady": 8}
+
+        tk.Label(
+            settings,
+            text="LLM API SETTINGS",
+            font=("Consolas", 12, "bold"),
+            fg=self.accent_color,
+            bg=self.bg_color,
+        ).pack(anchor="w", padx=14, pady=(14, 6))
+
+        tk.Label(
+            settings,
+            text="API Key",
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.bg_color,
+        ).pack(anchor="w", **pad)
+
+        key_var = tk.StringVar(value=self.summarizer.config["llm"]["api_key"])
+        key_entry = tk.Entry(
+            settings,
+            textvariable=key_var,
+            font=("Consolas", 10),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            insertbackground=self.text_color,
+            relief="flat",
+            show="*",
+        )
+        key_entry.pack(fill="x", **pad)
+
+        tk.Label(
+            settings,
+            text="Base URL",
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.bg_color,
+        ).pack(anchor="w", **pad)
+
+        url_var = tk.StringVar(value=self.summarizer.config["llm"]["base_url"])
+        tk.Entry(
+            settings,
+            textvariable=url_var,
+            font=("Consolas", 10),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            insertbackground=self.text_color,
+            relief="flat",
+        ).pack(fill="x", **pad)
+
+        tk.Label(
+            settings,
+            text="Model",
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.bg_color,
+        ).pack(anchor="w", **pad)
+
+        model_var = tk.StringVar(value=self.summarizer.config["llm"]["model"])
+        tk.Entry(
+            settings,
+            textvariable=model_var,
+            font=("Consolas", 10),
+            fg=self.text_color,
+            bg=self.panel_dark,
+            insertbackground=self.text_color,
+            relief="flat",
+        ).pack(fill="x", **pad)
+
+        enabled_var = tk.BooleanVar(value=self.summarizer.config["llm"]["enabled"])
+        tk.Checkbutton(
+            settings,
+            text="Enable LLM API",
+            variable=enabled_var,
+            font=("Consolas", 9, "bold"),
+            fg=self.text_color,
+            bg=self.bg_color,
+            activebackground=self.bg_color,
+            activeforeground=self.text_color,
+            selectcolor=self.panel_dark,
+            relief="flat",
+        ).pack(anchor="w", **pad)
+
+        def save_settings() -> None:
+            self.summarizer.update_config(
+                api_key=key_var.get(),
+                base_url=url_var.get(),
+                model=model_var.get(),
+                enabled=enabled_var.get(),
+            )
+            settings.destroy()
+
+        tk.Button(
+            settings,
+            text="SAVE",
+            command=save_settings,
+            font=("Consolas", 10, "bold"),
+            fg="#111111",
+            bg=self.accent_color,
+            activebackground=self.accent_dark,
+            activeforeground="#111111",
+            relief="flat",
+            bd=0,
+            padx=16,
+            pady=7,
+            cursor="hand2",
+        ).pack(anchor="w", padx=14, pady=(8, 14))
 
     def _handle_transcription_error(self, error: str) -> None:
         """Handle transcription error with appropriate message."""
+
+        self.status_indicator.configure(
+            text="● ERROR",
+            fg=self.error_color,
+        )
+
         # Map common errors to user-friendly messages
         error_lower = error.lower()
 
@@ -218,7 +929,9 @@ class TranscriberApp:
             error_msg = "Ошибка при обработке аудио. Попробуйте другой файл."
 
         # Update status label with error message
-        self.status_label.configure(text=f"Ошибка: {error_msg}")
+        self.status_label.configure(
+            text="PROCESSING FAILED"
+        )
 
         # Show messagebox with details
         messagebox.showerror(
