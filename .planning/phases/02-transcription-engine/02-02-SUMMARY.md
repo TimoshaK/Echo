@@ -2,93 +2,95 @@
 phase: 02-transcription-engine
 plan: 02
 subsystem: ui
-tags: [tkinter, gui, error-handling, transcription]
+tags: [tkinter, transcription, error-handling, queue, threading]
 
 # Dependency graph
-requires: [02-01]
+requires:
+  - phase: 02-transcription-engine
+    plan: 01
+    provides: TranscriptionEngine class with lazy whisper model loading and queue-based communication
+  - phase: 01-gui-file-selection
+    provides: tkinter GUI with file selection dialog
 provides:
-  - "Updated TranscriberApp with new widgets"
-  - "Result text area with scrollbar"
-  - "Error handling with messagebox"
-affects: []
+  - Updated TranscriberApp with transcribe button, result text area, and scrollbar
+  - Engine integration via composition pattern
+  - Queue-based polling for real-time status updates
+  - Error handling with Russian messages per UI-SPEC copywriting contract
+affects: [03-integration, 04-save-results]
 
 # Tech tracking
 tech-stack:
   added: []
-  patterns: [queue-polling, error-mapping, button-state-management]
+  patterns: [queue-polling-root-after, error-mapping-messagebox, button-state-management]
 
 key-files:
   created: []
   modified: [main.py]
 
 key-decisions:
-  - "Used 100ms polling interval for queue updates"
-  - "Mapped common errors to Russian messages per UI-SPEC"
-  - "Disabled button during processing to prevent concurrent transcriptions"
+  - "100ms polling interval for queue checks balances responsiveness with CPU usage"
+  - "Error messages mapped from English exceptions to Russian user-friendly strings per UI-SPEC"
 
 patterns-established:
-  - "Pattern: Queue polling with root.after() for GUI updates"
-  - "Pattern: Error mapping to user-friendly Russian messages"
-  - "Pattern: Button state management for processing flow"
+  - "Pattern 1: root.after(100, method) for safe GUI polling from main thread"
+  - "Pattern 2: Button state management (disabled during processing, re-enabled on completion/error)"
+  - "Pattern 3: Error classification by keyword matching for user-friendly messages"
 
 requirements-completed: [TRNS-01, TRNS-02, RESL-01, ERRR-01]
 
 # Metrics
-duration: 15min
+duration: 3min
 completed: 2026-09-03
 ---
 
-# Phase 2 Plan 02: GUI Integration Summary
+# Phase 2 Plan 02: Transcription UI Integration Summary
 
-**Updated TranscriberApp with Transcribe button, Result text area, and error handling**
+**TranscriberApp wired to TranscriptionEngine with queue-based polling, result display, and Russian error messages per UI-SPEC contract**
 
 ## Performance
 
-- **Duration:** 15 min
-- **Started:** 2026-09-03
-- **Completed:** 2026-09-03
+- **Duration:** 3 min
+- **Started:** 2026-09-03T12:35:00Z
+- **Completed:** 2026-09-03T12:38:00Z
 - **Tasks:** 2
 - **Files modified:** 1
 
 ## Accomplishments
-- Updated window layout to 600×450 with new widgets
-- Added Transcribe button with state management
-- Added Result text area with scrollbar
-- Implemented queue polling for progress updates
-- Added comprehensive error handling with Russian messages
+- TranscriberApp updated with 600x450 window, transcribe button, result text area with scrollbar
+- TranscriptionEngine integrated via composition with queue-based polling
+- Error handling maps common whisper errors to Russian messages per UI-SPEC copywriting contract
 
 ## Task Commits
 
 Each task was committed atomically:
 
-1. **Task 1: Update TranscriberApp with new widgets** - (commit hash)
-2. **Task 2: Wire up transcription engine and error handling** - (commit hash)
+1. **Task 1: Update TranscriberApp with new widgets and layout** - `a506782` (feat)
+2. **Task 2: Wire up transcription engine and error handling** - `ac0abe2` (feat)
 
 ## Files Created/Modified
-- `main.py` - Updated TranscriberApp with new widgets, error handling, and engine integration
+- `main.py` - Updated TranscriberApp with new layout, engine integration, polling, and error handling
 
 ## Decisions Made
-- Used 100ms polling interval for queue updates (balances responsiveness vs CPU usage)
-- Mapped common errors to Russian messages per UI-SPEC copywriting contract
-- Disabled button during processing to prevent concurrent transcriptions
-- Used queue.get_nowait() to prevent blocking the GUI thread
+- Used 100ms polling interval via root.after() for responsive queue checks without blocking GUI
+- Error classification uses keyword matching on lowercase error strings for language-agnostic detection
+- Status label wraps at 560px to fit 600px window width per UI-SPEC
 
 ## Deviations from Plan
 
-None - plan executed exactly as written.
+None - plan executed exactly as written
 
 ## Issues Encountered
 
-None.
+None
 
 ## User Setup Required
 
-None - no additional setup required.
+None - no external service configuration required.
 
 ## Next Phase Readiness
-- Complete transcription workflow functional
-- Error handling in place for common failure modes
-- UI matches UI-SPEC.md layout and copywriting
+- Transcription workflow complete: select file → click transcribe → see results
+- Error handling covers ffmpeg, format, model, and memory errors
+- Ready for output formatting (save to .txt/.srt) in subsequent plan
 
 ---
 *Phase: 02-transcription-engine*
@@ -96,9 +98,7 @@ None - no additional setup required.
 
 ## Self-Check: PASSED
 
-- FOUND: Transcribe button with state="disabled"
-- FOUND: Result text area with scrollbar
-- FOUND: poll_progress method
-- FOUND: _handle_transcription_complete method
-- FOUND: _handle_transcription_error method
-- FOUND: Error messagebox with title "Ошибка транскрипции"
+- [x] main.py exists
+- [x] 02-02-SUMMARY.md exists
+- [x] Commit a506782 verified
+- [x] Commit ac0abe2 verified
