@@ -76,7 +76,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 04-01-PLAN.md — Save results in .txt and .srt formats with folder selection
+- [x] 04-01-PLAN.md — Save results in .txt and .srt formats with folder selection
 
 ## Progress
 

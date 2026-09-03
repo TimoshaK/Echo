@@ -38,10 +38,10 @@
 
 ### Сохранение (Storage)
 
-- [ ] **STOR-01**: Пользователь может выбрать место для сохранения результатов
-- [ ] **STOR-02**: Сохранение транскрипции в .txt
-- [ ] **STOR-03**: Сохранение транскрипции в .srt (субтитры с таймкодами)
-- [ ] **STOR-04**: Конспект включается в сохранённый вывод
+- [x] **STOR-01**: Пользователь может выбрать место для сохранения результатов
+- [x] **STOR-02**: Сохранение транскрипции в .txt
+- [x] **STOR-03**: Сохранение транскрипции в .srt (субтитры с таймкодами)
+- [x] **STOR-04**: Конспект включается в сохранённый вывод
 
 ### Прогресс
 
@@ -76,10 +76,10 @@
 | ERRR-01 | Phase 2 | Pending |
 | SUMR-01 | Phase 3 | Complete |
 | SUMR-02 | Phase 3 | Complete |
-| STOR-01 | Phase 4 | Pending |
-| STOR-02 | Phase 4 | Pending |
-| STOR-03 | Phase 4 | Pending |
-| STOR-04 | Phase 4 | Pending |
+| STOR-01 | Phase 4 | Complete |
+| STOR-02 | Phase 4 | Complete |
+| STOR-03 | Phase 4 | Complete |
+| STOR-04 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 6 total
