@@ -58,10 +58,10 @@
 |-------------|-------|--------|
 | FILE-01 | Phase 1 | Pending |
 | FILE-02 | Phase 1 | Pending |
-| TRNS-01 | Phase 1 | Pending |
-| TRNS-02 | Phase 1 | Pending |
-| RESL-01 | Phase 1 | Pending |
-| ERRR-01 | Phase 1 | Pending |
+| TRNS-01 | Phase 2 | Pending |
+| TRNS-02 | Phase 2 | Pending |
+| RESL-01 | Phase 2 | Pending |
+| ERRR-01 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 6 total
@@ -70,4 +70,4 @@
 
 ---
 *Requirements defined: 2026-09-03*
-*Last updated: 2026-09-03 after initial definition*
+*Last updated: 2026-09-03 after roadmap creation*
