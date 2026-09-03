@@ -68,6 +68,7 @@ class TranscriberApp:
         self.root.minsize(500, 350)
 
         self.selected_file: str | None = None
+        self.engine = TranscriptionEngine()
 
         self._build_ui()
 
@@ -146,11 +147,87 @@ class TranscriberApp:
 
     def start_transcription(self) -> None:
         """Start transcription process."""
-        pass  # Will be implemented in Task 2
+        if not self.selected_file:
+            return
+
+        # Disable button during processing
+        self.transcribe_btn.configure(state="disabled")
+        self.status_label.configure(text="Выполняется транскрипция...")
+
+        # Clear previous results
+        self.result_text.configure(state="normal")
+        self.result_text.delete("1.0", tk.END)
+        self.result_text.configure(state="disabled")
+
+        # Start transcription in background thread
+        self.engine.start_transcription(self.selected_file)
+
+        # Start polling for progress
+        self.poll_progress()
 
     def poll_progress(self) -> None:
         """Poll progress queue for updates."""
-        pass  # Will be implemented in Task 2
+        try:
+            while True:
+                message = self.engine.progress_queue.get_nowait()
+
+                if message["type"] == "status":
+                    self.status_label.configure(text=message["text"])
+
+                elif message["type"] == "complete":
+                    self._handle_transcription_complete(message)
+                    return
+
+                elif message["type"] == "error":
+                    self._handle_transcription_error(message["error"])
+                    return
+
+        except queue.Empty:
+            # No messages yet, poll again after 100ms
+            self.root.after(100, self.poll_progress)
+
+    def _handle_transcription_complete(self, message: dict) -> None:
+        """Handle successful transcription completion."""
+        # Update status with detected language
+        language = message.get("language", "неизвестный")
+        self.status_label.configure(text=f"Готово! Язык: {language}")
+
+        # Display transcription text
+        self.result_text.configure(state="normal")
+        self.result_text.delete("1.0", tk.END)
+        self.result_text.insert("1.0", message["text"])
+        self.result_text.configure(state="disabled")
+
+        # Re-enable transcribe button
+        self.transcribe_btn.configure(state="normal")
+
+    def _handle_transcription_error(self, error: str) -> None:
+        """Handle transcription error with appropriate message."""
+        # Map common errors to user-friendly messages
+        error_lower = error.lower()
+
+        if "ffmpeg" in error_lower or "avconv" in error_lower:
+            error_msg = "Не установлен ffmpeg. Установите ffmpeg и попробуйте снова."
+        elif "format" in error_lower or "codec" in error_lower:
+            error_msg = "Неподдерживаемый формат файла. Используйте MP3, WAV, M4A, FLAC, OGG или WebM."
+        elif "model" in error_lower or "download" in error_lower:
+            error_msg = "Не удалось загрузить модель Whisper. Проверьте подключение к интернету."
+        elif "memory" in error_lower or "allocat" in error_lower:
+            error_msg = "Недостаточно памяти. Попробуйте файл меньшего размера."
+        else:
+            error_msg = "Ошибка при обработке аудио. Попробуйте другой файл."
+
+        # Update status label with error message
+        self.status_label.configure(text=f"Ошибка: {error_msg}")
+
+        # Show messagebox with details
+        messagebox.showerror(
+            "Ошибка транскрипции",
+            f"Не удалось выполнить транскрипцию.\n\n{error_msg}\n\nДетали: {error}"
+        )
+
+        # Re-enable transcribe button
+        self.transcribe_btn.configure(state="normal")
 
 
 def main() -> None:
