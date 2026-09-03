@@ -1,8 +1,30 @@
 """Whisper Transcriber — GUI application for audio transcription."""
 
 import os
+import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+
+import whisper
+
+
+class TranscriptionEngine:
+    """Whisper transcription engine with lazy model loading."""
+
+    def __init__(self) -> None:
+        self.model = None
+        self.model_lock = threading.Lock()
+
+    def load_model(self) -> None:
+        """Load whisper base model (lazy, thread-safe)."""
+        with self.model_lock:
+            if self.model is None:
+                self.model = whisper.load_model("base")
+
+    def transcribe(self, file_path: str) -> dict:
+        """Transcribe audio file. Returns whisper result dict."""
+        self.load_model()
+        return self.model.transcribe(file_path, task="transcribe")
 
 
 class TranscriberApp:
