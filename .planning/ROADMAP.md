@@ -61,7 +61,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 03-01-PLAN.md — OpenRouter summarization integration with pluggable API config
+- [x] 03-01-PLAN.md — OpenRouter summarization integration with pluggable API config
 
 ### Phase 4: Output Storage
 **Goal**: User can choose a storage location and save the transcription + summary in .txt and .srt formats

@@ -25,8 +25,8 @@
 
 ### Конспект (Summarization)
 
-- [ ] **SUMR-01**: Пользователь может сгенерировать краткий конспект транскрипции одним действием
-- [ ] **SUMR-02**: LLM провайдер подключаемый (настраиваемый base URL + API key), независимый
+- [x] **SUMR-01**: Пользователь может сгенерировать краткий конспект транскрипции одним действием
+- [x] **SUMR-02**: LLM провайдер подключаемый (настраиваемый base URL + API key), независимый
 
 ## v2 Requirements
 
@@ -74,8 +74,8 @@
 | TRNS-02 | Phase 2 | Pending |
 | RESL-01 | Phase 2 | Pending |
 | ERRR-01 | Phase 2 | Pending |
-| SUMR-01 | Phase 3 | Pending |
-| SUMR-02 | Phase 3 | Pending |
+| SUMR-01 | Phase 3 | Complete |
+| SUMR-02 | Phase 3 | Complete |
 | STOR-01 | Phase 4 | Pending |
 | STOR-02 | Phase 4 | Pending |
 | STOR-03 | Phase 4 | Pending |
