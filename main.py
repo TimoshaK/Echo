@@ -64,8 +64,8 @@ class TranscriberApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Whisper Transcriber")
-        self.root.geometry("500x200")
-        self.root.minsize(400, 150)
+        self.root.geometry("600x450")
+        self.root.minsize(500, 350)
 
         self.selected_file: str | None = None
 
@@ -86,18 +86,36 @@ class TranscriberApp:
         self.file_entry.grid(row=0, column=1, sticky="ew", padx=8, pady=8)
         self.file_entry.configure(state="readonly")
 
-        # Row 1: Status label
+        # Row 1: Transcribe button + Status label
+        self.transcribe_btn = ttk.Button(
+            self.root, text="Транскрибировать", command=self.start_transcription,
+            state="disabled"
+        )
+        self.transcribe_btn.grid(row=1, column=0, sticky="w", padx=8, pady=8)
+
         self.status_label = ttk.Label(
             self.root,
             text="Нажмите «Выбрать файл», чтобы выбрать аудиофайл для транскрипции",
-            wraplength=460,
+            wraplength=560,
         )
-        self.status_label.grid(
-            row=1, column=0, columnspan=2, sticky="w", padx=8, pady=(0, 8)
-        )
+        self.status_label.grid(row=1, column=1, sticky="w", padx=8, pady=8)
 
-        # Column 1 expands when window is resized
+        # Row 2: Result text area + scrollbar
+        result_frame = ttk.Frame(self.root)
+        result_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=8, pady=(8, 8))
+
+        self.result_text = tk.Text(
+            result_frame, wrap="word", state="disabled", height=15
+        )
+        self.result_scrollbar = ttk.Scrollbar(result_frame, command=self.result_text.yview)
+        self.result_text.configure(yscrollcommand=self.result_scrollbar.set)
+
+        self.result_text.pack(side="left", fill="both", expand=True)
+        self.result_scrollbar.pack(side="right", fill="y")
+
+        # Column and row weights
         self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_rowconfigure(2, weight=1)
 
     def select_file(self) -> None:
         """Open file dialog and handle selection."""
@@ -124,6 +142,15 @@ class TranscriberApp:
             self.file_entry.configure(state="readonly")
             filename = os.path.basename(file_path)
             self.status_label.configure(text=f"Выбран: {filename}")
+            self.transcribe_btn.configure(state="normal")
+
+    def start_transcription(self) -> None:
+        """Start transcription process."""
+        pass  # Will be implemented in Task 2
+
+    def poll_progress(self) -> None:
+        """Poll progress queue for updates."""
+        pass  # Will be implemented in Task 2
 
 
 def main() -> None:
