@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-09-21T15:43:09.383Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-09-21T15:48:52.541Z"
 last_activity: 2026-09-21
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 7
+  percent: 64
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 06 (refactor-main-into-echo-package) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-09-21
 
@@ -53,6 +53,7 @@ Progress: ░░░░░░░░░░ 50%
 
 *Updated after each plan completion*
 | Phase 06 P01 | 2min | 3 tasks | 5 files |
+| Phase 06 P02 | 3min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,10 @@ Recent decisions affecting current work:
 - [Phase 06]: CONFIG_PATH re-anchored to repo root via Path(__file__).resolve().parent.parent (D-01); naive move would silently break REFR-03
 - [Phase 06]: echo/__init__.py stays import-free to keep import echo cheap and avoid a cycle with echo.ui.app
 - [Phase 06]: map_transcription_error preserves exact branch order (ffmpeg before format; model only when format/codec absent)
+- [Phase 06]: echo.llm_client is stateless: config is passed explicitly into post_chat, and the seven pure helpers moved as module-level functions
+- [Phase 06]: parse_json_content kept linear-only (strip + first-{/last-} slice + json.loads); import re asserted absent (T-260921-04)
+- [Phase 06]: is_layer_failure truth table preserved exactly (None/400/422 True; 401/403/429/5xx/0 False) so terminal errors never retry
+- [Phase 06]: SummarizationEngine no longer owns the eight moved helpers; only _request_content + summarize remain as ladder members delegating to echo.llm_client
 
 ### Roadmap Evolution
 
@@ -88,6 +93,6 @@ Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты ко
 
 ## Session Continuity
 
-Last session: 2026-09-21T15:43:09.380Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-09-21T15:48:52.538Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None

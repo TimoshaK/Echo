@@ -61,7 +61,7 @@
 ### Рефакторинг (Refactor)
 
 - [x] **REFR-01**: main.py разбит на модули пакета echo/ (config, presets, errors, llm_client, srt, engines, ui)
-- [ ] **REFR-02**: Поведение приложения не изменяется (UI, фичи, контракты очередей)
+- [x] **REFR-02**: Поведение приложения не изменяется (UI, фичи, контракты очередей)
 - [x] **REFR-03**: Существующий корневой app_config.json (с API-ключом) по-прежнему читается
 
 ## Out of Scope
@@ -98,7 +98,7 @@
 | DIST-03 | Phase 5 | Pending |
 | DIST-04 | Phase 5 | Pending |
 | REFR-01 | Phase 6 | Complete |
-| REFR-02 | Phase 6 | Pending |
+| REFR-02 | Phase 6 | Complete |
 | REFR-03 | Phase 6 | Complete |
 
 **Coverage:**
