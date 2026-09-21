@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-09-21T15:55:41.066Z"
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-09-21T17:32:04.962Z"
 last_activity: 2026-09-21
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 06 (refactor-main-into-echo-package) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-09-21
 
@@ -55,6 +55,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 06 P01 | 2min | 3 tasks | 5 files |
 | Phase 06 P02 | 3min | 3 tasks | 3 files |
 | Phase 06 P03 | 4min | 3 tasks | 4 files |
+| Phase 06 P04 | 93min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 06]: build.py keeps baseline literals #111111/#666666 (no COLORS key exists for them); only the nine palette colours route through theme.COLORS
 - [Phase 06]: configure_combobox_style(app) must run before app.preset_var is created; builder call order preserved from baseline (save_buttons 938 before footer 944)
 - [Phase 06]: echo.ui builders take the app instance as a parameter (never import echo.ui.app) breaking the would-be app<->build import cycle
+- [Phase 06]: echo.ui.app __init__ maps theme.COLORS into the legacy *_color attributes and constructs self.summarizer BEFORE build_ui(self), because build.py reads both
+- [Phase 06]: open_settings stays a one-line delegate to settings_dialog.open_settings(app) so command=app.open_settings keeps binding; the dialog body is single-sourced
+- [Phase 06]: TranscriberApp._handle_transcription_error delegates to map_transcription_error; save_transcription_srt delegates to build_srt_content(self.last_segments); _build_ui/_configure_combobox_style/_build_save_buttons/_time_to_srt/_srt_content are deleted
 
 ### Roadmap Evolution
 
@@ -98,6 +102,6 @@ Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты ко
 
 ## Session Continuity
 
-Last session: 2026-09-21T15:55:41.062Z
-Stopped at: Completed 06-03-PLAN.md
+Last session: 2026-09-21T17:32:04.960Z
+Stopped at: Completed 06-04-PLAN.md
 Resume file: None

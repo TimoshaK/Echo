@@ -110,7 +110,7 @@ Plans:
 - [x] 06-01-PLAN.md — Package skeleton + leaf modules (config with re-anchored CONFIG_PATH, presets, errors, srt)
 - [x] 06-02-PLAN.md — LLM client + engines (llm_client, transcription_engine, summarization_engine)
 - [x] 06-03-PLAN.md — UI foundation (ui/theme, ui/build, ui/settings_dialog)
-- [ ] 06-04-PLAN.md — UI application window (ui/app: TranscriberApp)
+- [x] 06-04-PLAN.md — UI application window (ui/app: TranscriberApp)
 - [ ] 06-05-PLAN.md — Thin launcher, delete app_config.py, end-to-end smoke
 - [ ] 06-06-PLAN.md — Widget-construction parity proof + human visual verification
 
@@ -126,4 +126,4 @@ Phases execute in numeric order: 1 → 6
 | 3. Summarization | 1/1 | Completed | 2026-09-04 |
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
-| 6. Refactor main.py into echo package | 0/6 | Not started | - |
+| 6. Refactor main.py into echo package | 4/6 | In Progress|  |
