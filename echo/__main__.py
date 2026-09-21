@@ -1,4 +1,4 @@
-"""Whisper Transcriber — thin launcher for the echo package."""
+"""Allow `py -3 -m echo` as an alternative entry point."""
 
 import tkinter as tk
 
