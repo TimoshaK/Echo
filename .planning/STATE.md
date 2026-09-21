@@ -70,6 +70,14 @@ None yet.
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Status | Directory |
+|---|-------------|------|--------|--------|-----------|
+| 260921-ofx | Пресеты конспектов: Combobox в панели SYSTEM STATUS + JSON response_format | 2026-09-21 | 7ac7418 | Needs Review | [260921-ofx-combobox-system-status-json-response-for](./quick/260921-ofx-combobox-system-status-json-response-for/) |
+
+Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты конспектов: Combobox в панели SYSTEM STATUS + JSON response_format
+
 ## Session Continuity
 
 Last session: 2026-09-03T19:30:00.000Z
