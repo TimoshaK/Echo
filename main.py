@@ -27,7 +27,7 @@ SUMMARY_PRESETS = {
         "hint": "дейли-встречи",
         "schema_name": "daily_conspect",
         "sections": [
-            {"key": "tasks", "title": "ЗАДАЧИ", "kind": "list"},
+            {"key": "tasks", "title": "AFD", "kind": "list"},
             {"key": "decisions", "title": "РЕШЕНИЯ", "kind": "list"},
             {"key": "blockers", "title": "БЛОКЕРЫ", "kind": "list"},
         ],
