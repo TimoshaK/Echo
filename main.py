@@ -178,33 +178,22 @@ class SummarizationEngine:
         }
         app_config.save_config(self.config)
 
-    def summarize(self, text: str) -> str:
-        """Generate a summary of text via the configured LLM API."""
-        if not self.is_configured():
-            raise RuntimeError(
-                "LLM API не настроен. Откройте настройки и укажите ключ API."
-            )
+    def _post_chat(self, payload: dict) -> str:
+        """Единственное место с сетью: POST /chat/completions.
 
+        Возвращает только `message["content"]` (T-260921-05: `reasoning_content`
+        не читается и не рендерится). Ошибки всегда `SummaryApiError`, чтобы
+        `code` не терялся по дороге; решение "повторять или остановиться"
+        принимает `summarize` через `_is_layer_failure`.
+        """
         llm = self.config["llm"]
-        prompt = (
-            "Составь краткий конспект следующей транскрипции аудио: "
-            "выдели основные темы и ключевые идеи. Пиши на языке исходного аудио.\n\n"
-            f"ТРАНСКРИПЦИЯ:\n{text}"
-        )
-        payload = json.dumps({
-            "model": llm["model"],
-            "messages": [
-                {"role": "system", "content": "Ты — ассистент для создания конспектов аудио."},
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": 0.3,
-        }).encode("utf-8")
-
         req = urllib.request.Request(
             f"{llm['base_url']}/chat/completions",
-            data=payload,
+            data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Content-Type": "application/json",
+                # T-260921-02: api_key уходит только в заголовок, не в тело и не
+                # в текст ошибок.
                 "Authorization": f"Bearer {llm['api_key']}",
             },
             method="POST",
@@ -215,14 +204,258 @@ class SummarizationEngine:
                 data = json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", errors="replace")[:500]
-            raise RuntimeError(f"Ошибка API ({e.code}): {detail}")
+            raise SummaryApiError(f"Ошибка API ({e.code}): {detail}", code=e.code)
         except urllib.error.URLError as e:
-            raise RuntimeError(f"Сетевая ошибка: {e.reason}")
+            raise SummaryApiError(f"Сетевая ошибка: {e.reason}", code=0)
 
         try:
-            return data["choices"][0]["message"]["content"].strip()
-        except (KeyError, IndexError):
-            raise RuntimeError("Неожиданный ответ от API.")
+            content = data["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError):
+            # Провал слоя, а не терминальная ошибка: следующий слой может спасти.
+            raise SummaryApiError("Неожиданный ответ от API.", code=None)
+
+        # reasoning-модель при truncation отдаёт content="" + finish_reason
+        # "length" — это тоже провал слоя, идём на следующий.
+        if not isinstance(content, str) or not content.strip():
+            raise SummaryApiError("Пустой ответ от API.", code=None)
+
+        return content.strip()
+
+    @staticmethod
+    def _json_schema_format(preset: dict) -> dict | None:
+        """`response_format` для json_schema-слоя (None для free-пресета)."""
+        name = preset.get("schema_name")
+        if name is None:
+            return None
+
+        properties: dict = {}
+        required: list = []
+        for section in preset.get("sections") or []:
+            if section.get("kind") == "list":
+                properties[section["key"]] = {
+                    "type": "array",
+                    "items": {"type": "string"},
+                }
+            else:
+                properties[section["key"]] = {"type": "string"}
+            required.append(section["key"])
+
+        return {
+            "type": "json_schema",
+            "json_schema": {
+                "name": name,
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": required,
+                    "additionalProperties": False,
+                },
+            },
+        }
+
+    @staticmethod
+    def _json_instruction(preset: dict) -> str:
+        """Текстовая JSON-инструкция для json_object-слоя."""
+        lines = [
+            "Верни ТОЛЬКО JSON-объект без markdown-ограждений и пояснений "
+            "со следующими ключами:"
+        ]
+        for section in preset.get("sections") or []:
+            kind = "массив строк" if section.get("kind") == "list" else "строка"
+            lines.append(f'  "{section["key"]}": {kind} — {section["title"]}')
+        return "\n".join(lines)
+
+    def _build_messages(
+        self, preset: dict, text: str, json_mode: str | None
+    ) -> list[dict]:
+        """Собрать messages для запроса; `json_mode` — тип response_format."""
+        system = "Ты — ассистент для создания конспектов аудио."
+        if json_mode is not None:
+            system += " Отвечай строго в формате JSON, без markdown-ограждений."
+
+        if preset["schema_name"] is None:
+            # free-пресет: сохраняем текущий промпт дословно.
+            instruction = (
+                "Составь краткий конспект следующей транскрипции аудио: "
+                "выдели основные темы и ключевые идеи."
+            )
+        else:
+            hint = preset.get("hint") or preset["title"].lower()
+            instruction = f"Составь конспект ({hint})."
+
+        if json_mode is not None:
+            instruction += " " + self._json_instruction(preset)
+
+        user = (
+            f"{instruction} Пиши на языке исходного аудио.\n\n"
+            f"ТРАНСКРИПЦИЯ:\n{text}"
+        )
+        return [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+
+    @staticmethod
+    def _parse_json_content(content: str) -> dict | None:
+        """Вернуть dict из ответа модели или None.
+
+        Только линейные операции (T-260921-04): strip, срез по первой `{` и
+        последней `}`, `json.loads`. Никаких regex и рекурсии.
+        """
+        if not isinstance(content, str):
+            return None
+        s = content.strip()
+        if not s:
+            return None
+
+        # Снять markdown-ограждение ```json ... ```
+        if s.startswith("```"):
+            first_nl = s.find("\n")
+            if first_nl != -1:
+                body = s[first_nl + 1:]
+                last_fence = body.rfind("```")
+                if last_fence != -1:
+                    body = body[:last_fence]
+                s = body.strip()
+
+        parsed = None
+        try:
+            parsed = json.loads(s)
+        except (json.JSONDecodeError, ValueError, TypeError):
+            parsed = None
+
+        if not isinstance(parsed, dict):
+            start = s.find("{")
+            end = s.rfind("}")
+            if start != -1 and end > start:
+                try:
+                    parsed = json.loads(s[start:end + 1])
+                except (json.JSONDecodeError, ValueError, TypeError):
+                    parsed = None
+
+        # T-260921-03: пригоден только dict; None/список/скаляр -> следующий слой.
+        return parsed if isinstance(parsed, dict) else None
+
+    @staticmethod
+    def _render_sections(preset: dict, data: dict) -> str | None:
+        """Отрендерить человекочитаемые разделы; None для непригодного JSON."""
+        sections = preset.get("sections") or []
+
+        # T-260921-03: рендерим только известные ключи реестра; если ни одного —
+        # JSON непригоден, идём на следующий слой.
+        if not any(section["key"] in data for section in sections):
+            return None
+
+        blocks = []
+        for section in sections:
+            value = data.get(section["key"])
+            block = [section["title"]]
+            if section.get("kind") == "list":
+                items = []
+                if isinstance(value, list):
+                    items = [str(item).strip() for item in value if str(item).strip()]
+                elif isinstance(value, str) and value.strip():
+                    items = [value.strip()]
+                if items:
+                    block.extend(f"  • {item}" for item in items)
+                else:
+                    block.append("  — нет данных —")
+            else:
+                text = value.strip() if isinstance(value, str) else ""
+                block.append(text if text else "— нет данных —")
+            blocks.append("\n".join(block))
+
+        rule = "=" * 40
+        # Внутренний заголовок НЕ содержит слова «КОНСПЕКТ»: save_transcription_txt
+        # добавляет свой блок, иначе в .txt получится двойной заголовок.
+        return f"{rule}\n{preset['title']}\n{rule}\n\n" + "\n\n".join(blocks)
+
+    def _request_content(
+        self, preset: dict, text: str, response_format: dict | None
+    ) -> str:
+        """Один слой запроса: собрать payload и отправить (без повторов)."""
+        llm = self.config["llm"]
+        mode = response_format["type"] if response_format else None
+        payload = {
+            "model": llm["model"],
+            "messages": self._build_messages(preset, text, mode),
+            "temperature": 0.3,
+            # max_tokens НЕ выставляем: reasoning-модель уходит в reasoning и
+            # отдаёт пустой content.
+        }
+        if response_format is not None:
+            payload["response_format"] = response_format
+        return self._post_chat(payload)
+
+    def _try_render(self, preset: dict, content: str | None) -> str | None:
+        """None если контента нет или JSON непригоден, иначе разделы."""
+        if content is None:
+            return None
+        data = self._parse_json_content(content)
+        if data is None:
+            return None
+        return self._render_sections(preset, data)
+
+    @staticmethod
+    def _is_layer_failure(exc: "SummaryApiError") -> bool:
+        """True, если ошибку можно вылечить следующим слоем.
+
+        Терминальные (401/403/429/5xx/сеть=0) не повторяются: они не связаны с
+        поддержкой `response_format` и повторный вызов только жжёт время/квоту.
+        """
+        if exc.code is None:          # пустой/неожиданный ответ -> провал слоя
+            return True
+        if exc.code in (400, 422):    # провайдер не принял response_format
+            return True
+        return False                  # остальное — терминально
+
+    def summarize(self, text: str, preset_id: str | None = None) -> str:
+        """Конспект текста через LLM.
+
+        Лестница слоёв: `json_schema` -> `json_object` -> plain text. Провал
+        слоя (400/422, пустой/неожиданный ответ, непригодный JSON) ведёт на
+        следующий слой; терминальная ошибка (401/403/429/5xx/сеть) сразу
+        уходит наверх как `SummaryApiError` без повторов. Для пресета `free`
+        запрос уходит без `response_format` (текущее поведение).
+        """
+        if not self.is_configured():
+            raise RuntimeError(
+                "LLM API не настроен. Откройте настройки и укажите ключ API."
+            )
+
+        # T-260921-01: и аргумент, и self.preset валидируются по реестру.
+        preset = SUMMARY_PRESETS.get(preset_id or self.preset) or SUMMARY_PRESETS[DEFAULT_PRESET]
+
+        if preset["schema_name"] is None:
+            # free: без response_format, терминальная ошибка уезжает наверх.
+            return self._request_content(preset, text, None)
+
+        # Слой 1: json_schema
+        try:
+            c1 = self._request_content(preset, text, self._json_schema_format(preset))
+        except SummaryApiError as e:
+            if not self._is_layer_failure(e):
+                raise
+            c1 = None
+        rendered = self._try_render(preset, c1)
+        if rendered is not None:
+            return rendered
+
+        # Слой 2: json_object + JSON-инструкция
+        try:
+            c2 = self._request_content(preset, text, {"type": "json_object"})
+        except SummaryApiError as e:
+            if not self._is_layer_failure(e):
+                raise
+            c2 = None
+        rendered = self._try_render(preset, c2)
+        if rendered is not None:
+            return rendered
+
+        # Слой 3: plain text — гарантированный финал. Пустой content здесь не
+        # перехватываем: показывать пользователю нечего.
+        return self._request_content(preset, text, None)
 
     def start_summary(self, text: str) -> None:
         thread = threading.Thread(
