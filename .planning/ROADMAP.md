@@ -14,8 +14,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: GUI & File Selection** - Project setup, tkinter interface, and audio file selection dialog
 - [x] **Phase 2: Transcription Engine** - Whisper integration, transcription execution, result display, and error handling
-- [ ] **Phase 3: Summarization** - Generate brief summary of transcription via OpenRouter LLM API
-- [ ] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
+- [x] **Phase 3: Summarization** - Generate brief summary of transcription via OpenRouter LLM API
+- [x] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
+- [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
+- [ ] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior
 
 ## Phase Details
 
@@ -78,14 +80,45 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Save results in .txt and .srt formats with folder selection
 
+### Phase 5: Packaging & Distribution
+**Goal**: A user can install and run the app on another PC with all dependencies documented, and optionally build a standalone executable
+**Depends on**: Phase 4
+**Requirements**: DIST-01, DIST-02, DIST-03, DIST-04
+**Success Criteria** (what must be TRUE):
+  1. Required software/repositories are listed with sources
+  2. The role of FFmpeg (and alternatives) is explained
+  3. A step-by-step install and usage process is documented
+  4. A standalone executable can be built with PyInstaller
+**Plans**: 1 plan
+**UI hint**: no
+
+Plans:
+- [ ] 05-01-PLAN.md — Dependency documentation + PyInstaller packaging
+
+### Phase 6: Refactor main.py into echo package
+**Goal**: Split the monolithic main.py (1467 lines) into an `echo/` package with an `echo/ui/` subpackage, preserving behavior exactly
+**Depends on**: Phase 4 (code refactor; independent of packaging)
+**Requirements**: REFR-01, REFR-02, REFR-03
+**Success Criteria** (what must be TRUE):
+  1. Application behavior is unchanged (same UI, same features, same queue contracts)
+  2. main.py is a thin launcher; logic lives in echo/ modules (config, presets, errors, llm_client, srt, engines, ui)
+  3. The existing root app_config.json (including the API key) is still found and loaded
+**Plans**: 0 plans
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 6 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2
+Phases execute in numeric order: 1 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. GUI & File Selection | 1/1 | Completed | 2026-09-03 |
 | 2. Transcription Engine | 2/2 | Completed | 2026-09-03 |
-| 3. Summarization | 0/1 | Not started | - |
-| 4. Output Storage | 0/1 | Not started | - |
+| 3. Summarization | 1/1 | Completed | 2026-09-04 |
+| 4. Output Storage | 1/1 | Completed | 2026-09-04 |
+| 5. Packaging & Distribution | 0/1 | Not started | - |
+| 6. Refactor main.py into echo package | 0/1 | Not started | - |

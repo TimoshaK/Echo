@@ -51,6 +51,19 @@
 
 - [ ] **GPU-01**: Автоматическое использование GPU при наличии
 
+### Распространение (Distribution)
+
+- [ ] **DIST-01**: Перечень необходимого ПО/репозиториев с источниками для запуска на другом ПК
+- [ ] **DIST-02**: Объяснение роли FFmpeg и его аналогов в процессе транскрибации
+- [ ] **DIST-03**: Пошаговая инструкция установки и использования всего ПО
+- [ ] **DIST-04**: Возможность сборки standalone-исполняемого файла (PyInstaller)
+
+### Рефакторинг (Refactor)
+
+- [ ] **REFR-01**: main.py разбит на модули пакета echo/ (config, presets, errors, llm_client, srt, engines, ui)
+- [ ] **REFR-02**: Поведение приложения не изменяется (UI, фичи, контракты очередей)
+- [ ] **REFR-03**: Существующий корневой app_config.json (с API-ключом) по-прежнему читается
+
 ## Out of Scope
 
 | Feature | Reason |
@@ -80,6 +93,13 @@
 | STOR-02 | Phase 4 | Complete |
 | STOR-03 | Phase 4 | Complete |
 | STOR-04 | Phase 4 | Complete |
+| DIST-01 | Phase 5 | Pending |
+| DIST-02 | Phase 5 | Pending |
+| DIST-03 | Phase 5 | Pending |
+| DIST-04 | Phase 5 | Pending |
+| REFR-01 | Phase 6 | Pending |
+| REFR-02 | Phase 6 | Pending |
+| REFR-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 6 total
