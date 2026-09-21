@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-09-21T14:26:52.629Z"
-last_activity: 2026-09-21 -- Phase 6 planning complete
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-09-21T15:43:09.383Z"
+last_activity: 2026-09-21
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 11
-  completed_plans: 5
-  percent: 45
+  completed_plans: 6
+  percent: 55
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-03)
 
 **Core value:** Быстрая и точная транскрипция аудиофайлов в удобном интерфейсе с сохранением результатов в читаемых форматах.
-**Current focus:** Phase 01 — gui-file-selection
+**Current focus:** Phase 06 — refactor-main-into-echo-package
 
 ## Current Position
 
-Phase: 02
-Plan: Not started
+Phase: 06 (refactor-main-into-echo-package) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-09-21 -- Phase 6 planning complete
+Last activity: 2026-09-21
 
 Progress: ░░░░░░░░░░ 50%
 
@@ -52,6 +52,7 @@ Progress: ░░░░░░░░░░ 50%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 06 P01 | 2min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - [Roadmap]: Split into 2 phases — file selection first, then transcription engine
+- [Phase 06]: CONFIG_PATH re-anchored to repo root via Path(__file__).resolve().parent.parent (D-01); naive move would silently break REFR-03
+- [Phase 06]: echo/__init__.py stays import-free to keep import echo cheap and avoid a cycle with echo.ui.app
+- [Phase 06]: map_transcription_error preserves exact branch order (ffmpeg before format; model only when format/codec absent)
 
 ### Roadmap Evolution
 
@@ -84,6 +88,6 @@ Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты ко
 
 ## Session Continuity
 
-Last session: 2026-09-21T14:04:44.758Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-refactor-main-into-echo-package/06-CONTEXT.md
+Last session: 2026-09-21T15:43:09.380Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: None

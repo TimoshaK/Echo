@@ -107,7 +107,7 @@ Plans:
 **UI hint**: no
 
 Plans:
-- [ ] 06-01-PLAN.md — Package skeleton + leaf modules (config with re-anchored CONFIG_PATH, presets, errors, srt)
+- [x] 06-01-PLAN.md — Package skeleton + leaf modules (config with re-anchored CONFIG_PATH, presets, errors, srt)
 - [ ] 06-02-PLAN.md — LLM client + engines (llm_client, transcription_engine, summarization_engine)
 - [ ] 06-03-PLAN.md — UI foundation (ui/theme, ui/build, ui/settings_dialog)
 - [ ] 06-04-PLAN.md — UI application window (ui/app: TranscriberApp)
