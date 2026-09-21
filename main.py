@@ -786,6 +786,40 @@ class TranscriberApp:
             pady=(0, 6),
         )
 
+        # ---------------------------------------------------------
+        # Summary preset selector
+        # ---------------------------------------------------------
+
+        self.preset_labels = {
+            preset["label"]: preset_id
+            for preset_id, preset in SUMMARY_PRESETS.items()
+        }
+
+        tk.Label(
+            status_panel,
+            text="SUMMARY PRESET",
+            font=("Consolas", 8, "bold"),
+            fg=self.muted_color,
+            bg=self.panel_color,
+        ).pack(anchor="w", padx=14, pady=(0, 2))
+
+        self._configure_combobox_style()
+
+        self.preset_var = tk.StringVar(
+            value=SUMMARY_PRESETS[self.summarizer.preset]["label"]
+        )
+        self.preset_combo = ttk.Combobox(
+            status_panel,
+            textvariable=self.preset_var,
+            values=list(self.preset_labels.keys()),
+            state="readonly",
+            width=24,
+            style="Echo.TCombobox",
+            font=("Consolas", 9),
+        )
+        self.preset_combo.pack(anchor="w", padx=14, pady=(0, 10))
+        self.preset_combo.bind("<<ComboboxSelected>>", self.on_preset_change)
+
         self.summary_btn = tk.Button(
             status_panel,
             text="GENERATE SUMMARY",
@@ -942,6 +976,37 @@ class TranscriberApp:
         ).pack(
             side="right",
             padx=14,
+        )
+
+    def _configure_combobox_style(self) -> None:
+        """Тёмная палитра для ttk.Combobox; сбой темы не должен ломать UI."""
+        style = ttk.Style()
+        try:
+            style.theme_use("clam")
+        except tk.TclError:
+            pass
+        style.configure(
+            "Echo.TCombobox",
+            fieldbackground=self.panel_dark,
+            background=self.panel_dark,
+            foreground=self.text_color,
+            arrowcolor=self.accent_color,
+        )
+        style.map(
+            "Echo.TCombobox",
+            fieldbackground=[("readonly", self.panel_dark)],
+            foreground=[("readonly", self.text_color)],
+            selectbackground=[("readonly", self.panel_dark)],
+            selectforeground=[("readonly", self.text_color)],
+        )
+
+    def on_preset_change(self, event=None) -> None:
+        """Сохранить выбранный пресет; без сетевых вызовов и перезапуска."""
+        label = self.preset_var.get()
+        preset_id = self.preset_labels.get(label, DEFAULT_PRESET)
+        self.summarizer.set_preset(preset_id)
+        self.status_label.configure(
+            text=f"PRESET // {SUMMARY_PRESETS[preset_id]['title']}"
         )
 
     def _build_save_buttons(self) -> None:
