@@ -14,6 +14,82 @@ import whisper
 import app_config
 
 
+DEFAULT_PRESET = "free"
+
+# Единственный источник истины по пресетам конспекта: порядок ключей dict =
+# порядок пунктов в Combobox (Task 3). Ключи разделов — ASCII, потому что они
+# уходят и в json_schema-слой, и в json_object-инструкцию; русские заголовки
+# берутся из "title" при рендере.
+SUMMARY_PRESETS = {
+    "daily": {
+        "label": "Дейли",
+        "title": "ДЕЙЛИ",
+        "hint": "дейли-встречи",
+        "schema_name": "daily_conspect",
+        "sections": [
+            {"key": "tasks", "title": "ЗАДАЧИ", "kind": "list"},
+            {"key": "decisions", "title": "РЕШЕНИЯ", "kind": "list"},
+            {"key": "blockers", "title": "БЛОКЕРЫ", "kind": "list"},
+        ],
+    },
+    "lecture": {
+        "label": "Лекция",
+        "title": "ЛЕКЦИЯ",
+        "hint": "лекции",
+        "schema_name": "lecture_conspect",
+        "sections": [
+            {"key": "thesis", "title": "ТЕЗИС", "kind": "text"},
+            {"key": "key_points", "title": "КЛЮЧЕВЫЕ ПУНКТЫ", "kind": "list"},
+            {"key": "terms", "title": "ТЕРМИНЫ", "kind": "list"},
+            {"key": "conclusions", "title": "ВЫВОДЫ", "kind": "list"},
+        ],
+    },
+    "interview": {
+        "label": "Интервью",
+        "title": "ИНТЕРВЬЮ",
+        "hint": "интервью",
+        "schema_name": "interview_conspect",
+        "sections": [
+            {"key": "summary", "title": "РЕЗЮМЕ", "kind": "text"},
+            {"key": "qa", "title": "ВОПРОСЫ И ОТВЕТЫ", "kind": "list"},
+            {"key": "quotes", "title": "ЦИТАТЫ", "kind": "list"},
+        ],
+    },
+    "client": {
+        "label": "Клиент",
+        "title": "КЛИЕНТ",
+        "hint": "встречи с клиентом",
+        "schema_name": "client_conspect",
+        "sections": [
+            {"key": "requirements", "title": "ТРЕБОВАНИЯ", "kind": "list"},
+            {"key": "agreements", "title": "ДОГОВОРЁННОСТИ", "kind": "list"},
+            {"key": "next_steps", "title": "СЛЕДУЮЩИЕ ШАГИ", "kind": "list"},
+        ],
+    },
+    "free": {
+        "label": "Свободный",
+        "title": "СВОБОДНЫЙ",
+        "hint": "свободного конспекта",
+        "schema_name": None,
+        "sections": [],
+    },
+}
+
+
+class SummaryApiError(RuntimeError):
+    """Ошибка обращения к LLM API.
+
+    `code` — HTTP-статус, 0 — сетевая ошибка, None — некорректный/пустой
+    ответ (провал слоя). Наследуемся от RuntimeError осознанно: существующие
+    `_run_summary`/UI ловят `Exception`, а `summarize` умеет пробрасывать
+    терминальные ошибки без потери кода (`_is_layer_failure`).
+    """
+
+    def __init__(self, message: str, code: int | None = None) -> None:
+        super().__init__(message)
+        self.code = code
+
+
 class TranscriptionEngine:
     """Whisper transcription engine with lazy model loading."""
 
@@ -69,11 +145,27 @@ class SummarizationEngine:
 
     def __init__(self) -> None:
         self.config = app_config.load_config()
+
+        # T-260921-01: значение пресета из файла используется только как ключ
+        # реестра и обязательно валидируется — неизвестное значение -> дефолт.
+        preset = self.config.get("llm", {}).get("summary_preset", DEFAULT_PRESET)
+        if preset not in SUMMARY_PRESETS:
+            preset = DEFAULT_PRESET
+        self.preset = preset
+
         self.progress_queue: queue.Queue = queue.Queue()
 
     def is_configured(self) -> bool:
         llm = self.config.get("llm", {})
         return bool(llm.get("api_key")) and llm.get("enabled")
+
+    def set_preset(self, preset_id: str) -> None:
+        """Сохранить выбранный пресет конспекта в конфиг (T-260921-01)."""
+        if preset_id not in SUMMARY_PRESETS:
+            preset_id = DEFAULT_PRESET
+        self.preset = preset_id
+        self.config.setdefault("llm", {})["summary_preset"] = preset_id
+        app_config.save_config(self.config)
 
     def update_config(self, api_key: str, base_url: str, model: str, enabled: bool) -> None:
         self.config["llm"] = {
@@ -81,6 +173,8 @@ class SummarizationEngine:
             "base_url": base_url.strip().rstrip("/"),
             "model": model.strip(),
             "enabled": enabled,
+            # Сохраняем выбранный пресет: иначе SAVE в API SETTINGS затрёт его.
+            "summary_preset": self.preset,
         }
         app_config.save_config(self.config)
 

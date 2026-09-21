@@ -14,6 +14,7 @@ DEFAULT_CONFIG = {
         "base_url": "https://openrouter.ai/api/v1",
         "model": "openai/gpt-4o-mini",
         "enabled": False,
+        "summary_preset": "free",
     }
 }
 
