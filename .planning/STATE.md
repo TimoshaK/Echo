@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase 02 plans created, ready for execution
-stopped_at: Phase 02 plans created
-last_updated: "2026-09-03T17:26:03.576Z"
+stopped_at: Phase 6 context gathered
+last_updated: "2026-09-21T14:04:44.768Z"
 last_activity: 2026-09-03
 progress:
-  total_phases: 4
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 6
+  completed_phases: 4
+  total_plans: 5
+  completed_plans: 5
   percent: 100
 ---
 
@@ -62,6 +62,10 @@ Recent decisions affecting current work:
 
 - [Roadmap]: Split into 2 phases — file selection first, then transcription engine
 
+### Roadmap Evolution
+
+- Phase 6 added: Рефакторинг main.py (1467 строк) в пакет echo/ с подпакетом echo/ui/ (config, presets, errors, llm_client, srt, engines, ui); main.py — тонкий лаунчер; CONFIG_PATH указывает на корневой app_config.json; поведение не меняется
+
 ### Pending Todos
 
 None yet.
@@ -80,6 +84,6 @@ Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты ко
 
 ## Session Continuity
 
-Last session: 2026-09-03T19:30:00.000Z
-Stopped at: Phase 02 plans created
-Resume file: .planning/phases/02-transcription-engine/02-01-PLAN.md
+Last session: 2026-09-21T14:04:44.758Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-refactor-main-into-echo-package/06-CONTEXT.md
