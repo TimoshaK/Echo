@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-04-PLAN.md
-last_updated: "2026-09-21T17:32:04.962Z"
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-09-21T17:37:50.856Z"
 last_activity: 2026-09-21
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 10
+  percent: 91
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 06 (refactor-main-into-echo-package) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-09-21
 
@@ -56,6 +56,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 06 P02 | 3min | 3 tasks | 3 files |
 | Phase 06 P03 | 4min | 3 tasks | 4 files |
 | Phase 06 P04 | 93min | 2 tasks | 1 files |
+| Phase 06 P05 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 06]: echo.ui.app __init__ maps theme.COLORS into the legacy *_color attributes and constructs self.summarizer BEFORE build_ui(self), because build.py reads both
 - [Phase 06]: open_settings stays a one-line delegate to settings_dialog.open_settings(app) so command=app.open_settings keeps binding; the dialog body is single-sourced
 - [Phase 06]: TranscriberApp._handle_transcription_error delegates to map_transcription_error; save_transcription_srt delegates to build_srt_content(self.last_segments); _build_ui/_configure_combobox_style/_build_save_buttons/_time_to_srt/_srt_content are deleted
+- [Phase 06]: main.py reduced to a 9-line thin launcher (TranscriberApp import + 4-line main()); no re-exports (CONTEXT clean-structure rule)
+- [Phase 06]: Root app_config.py deleted atomically with the launcher rewrite; echo/config.py is the only config module (no split-brain, T-06-08)
+- [Phase 06]: echo/__main__.py added so py -3 -m echo works; main.spec set hiddenimports=['echo'] (gitignored, non-blocking)
+- [Phase 06]: D-05 Check 2 substring assertion corrected to import-intent: echo/config.py must name app_config.json (REFR-03), so the bare 'app_config' substring test was unpassable as written
 
 ### Roadmap Evolution
 
@@ -102,6 +107,6 @@ Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты ко
 
 ## Session Continuity
 
-Last session: 2026-09-21T17:32:04.960Z
-Stopped at: Completed 06-04-PLAN.md
+Last session: 2026-09-21T17:37:50.853Z
+Stopped at: Completed 06-05-PLAN.md
 Resume file: None

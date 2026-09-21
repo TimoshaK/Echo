@@ -111,7 +111,7 @@ Plans:
 - [x] 06-02-PLAN.md — LLM client + engines (llm_client, transcription_engine, summarization_engine)
 - [x] 06-03-PLAN.md — UI foundation (ui/theme, ui/build, ui/settings_dialog)
 - [x] 06-04-PLAN.md — UI application window (ui/app: TranscriberApp)
-- [ ] 06-05-PLAN.md — Thin launcher, delete app_config.py, end-to-end smoke
+- [x] 06-05-PLAN.md — Thin launcher, delete app_config.py, end-to-end smoke
 - [ ] 06-06-PLAN.md — Widget-construction parity proof + human visual verification
 
 ## Progress
