@@ -7,9 +7,49 @@ orchestration (config, preset, progress queue) lives in `echo.summarization_engi
 
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from echo.errors import SummaryApiError
+
+
+class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Редирект без утечки учётных данных (SEC-03).
+
+    Штатный HTTPRedirectHandler копирует ВСЕ заголовки, кроме content-length и
+    content-type, поэтому Authorization уезжает на чужой хост. Здесь заголовок
+    снимается, если меняется origin: схема, хост или порт.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new_req = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new_req is not None and _is_cross_origin(req.full_url, newurl):
+            new_req.headers.pop("Authorization", None)
+        return new_req
+
+
+def _is_cross_origin(origin_url: str, target_url: str) -> bool:
+    """True, если цель редиректа — другой origin (схема, хост или порт)."""
+    origin = urllib.parse.urlsplit(origin_url)
+    target = urllib.parse.urlsplit(target_url)
+    if target.scheme.lower() != origin.scheme.lower():
+        return True
+    return target.netloc.lower() != origin.netloc.lower()
+
+
+_OPENER = None
+
+
+def _http_opener() -> urllib.request.OpenerDirector:
+    """Отдельный opener только с SafeRedirectHandler.
+
+    Глобальную установку opener через `urllib.request` НЕ выполняем: она мутирует
+    состояние всего процесса и задела бы любую другую библиотеку.
+    """
+    global _OPENER
+    if _OPENER is None:
+        _OPENER = urllib.request.build_opener(SafeRedirectHandler)
+    return _OPENER
 
 
 def post_chat(config: dict, payload: dict) -> str:
@@ -34,7 +74,7 @@ def post_chat(config: dict, payload: dict) -> str:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
+        with _http_opener().open(req, timeout=60) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", errors="replace")[:500]
