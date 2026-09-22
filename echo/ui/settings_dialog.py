@@ -1,6 +1,23 @@
 """LLM API settings modal for the Echo UI."""
 
 import tkinter as tk
+from tkinter import messagebox
+
+from echo.errors import InvalidBaseUrlError
+from echo.llm_client import validate_base_url
+
+
+def validate_settings_base_url(raw: str) -> tuple[bool, str]:
+    """Проверить введённый base_url (SEC-02).
+
+    Возвращает (True, нормализованный_url) либо (False, текст ошибки).
+    Никогда не бросает исключение: возврат пары делает функцию пригодной
+    для тестов без Tk.
+    """
+    try:
+        return True, validate_base_url(raw)
+    except InvalidBaseUrlError as e:
+        return False, str(e)
 
 
 def open_settings(app) -> None:
@@ -97,9 +114,16 @@ def open_settings(app) -> None:
     ).pack(anchor="w", **pad)
 
     def save_settings() -> None:
+        ok, result = validate_settings_base_url(url_var.get())
+        if not ok:
+            # SEC-02: не сохраняем и НЕ закрываем диалог — пользователь должен
+            # увидеть причину и исправить адрес, а не потерять введённый ключ.
+            messagebox.showerror("Ошибка настроек", result)
+            return
+
         app.summarizer.update_config(
             api_key=key_var.get(),
-            base_url=url_var.get(),
+            base_url=result,
             model=model_var.get(),
             enabled=enabled_var.get(),
         )
