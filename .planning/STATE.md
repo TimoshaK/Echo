@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 06-05-PLAN.md
-last_updated: "2026-09-21T17:37:50.856Z"
-last_activity: 2026-09-21
+last_updated: "2026-09-22T04:21:28.000Z"
+last_activity: 2026-09-22
 progress:
   total_phases: 6
   completed_phases: 4
@@ -84,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 06]: Root app_config.py deleted atomically with the launcher rewrite; echo/config.py is the only config module (no split-brain, T-06-08)
 - [Phase 06]: echo/__main__.py added so py -3 -m echo works; main.spec set hiddenimports=['echo'] (gitignored, non-blocking)
 - [Phase 06]: D-05 Check 2 substring assertion corrected to import-intent: echo/config.py must name app_config.json (REFR-03), so the bare 'app_config' substring test was unpassable as written
+- [Quick 260922-esl]: Docs-only — README.md и SETUP_GUIDE.txt приведены к пакету echo/; код не менялся, новых доков не создавалось (scope строго два файла)
+- [Quick 260922-esl]: Privacy-раскрытие — опциональный конспект (GENERATE SUMMARY) отправляет ТЕКСТ транскрипции в OpenRouter, аудио и транскрибация остаются локальными (T-260922-01)
 
 ### Roadmap Evolution
 
@@ -102,11 +104,12 @@ None yet.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 260921-ofx | Пресеты конспектов: Combobox в панели SYSTEM STATUS + JSON response_format | 2026-09-21 | 7ac7418 | Needs Review | [260921-ofx-combobox-system-status-json-response-for](./quick/260921-ofx-combobox-system-status-json-response-for/) |
+| 260922-esl | README.md и SETUP_GUIDE.txt под рефактор Phase 6 (пакет echo/, конспект OpenRouter + пресеты, FFmpeg, py -3) | 2026-09-22 | 4053e57, e30cdc2 | Needs Review | [260922-esl-readme-md-setup-guide-txt-phase-6-echo-c](./quick/260922-esl-readme-md-setup-guide-txt-phase-6-echo-c/) |
 
-Last activity: 2026-09-21 - Completed quick task 260921-ofx: Пресеты конспектов: Combobox в панели SYSTEM STATUS + JSON response_format
+Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_GUIDE.txt обновлены под рефактор Phase 6 (echo/ package)
 
 ## Session Continuity
 
-Last session: 2026-09-21T17:37:50.853Z
-Stopped at: Completed 06-05-PLAN.md
+Last session: 2026-09-22T04:21:28.000Z
+Stopped at: Completed quick task 260922-esl (README.md and SETUP_GUIDE.txt for Phase 6 echo package)
 Resume file: None
