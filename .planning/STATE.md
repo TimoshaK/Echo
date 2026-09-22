@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 07-03-SUMMARY.md
-last_updated: "2026-09-22T09:10:34.828Z"
+status: verifying
+stopped_at: Completed 07-04-SUMMARY.md
+last_updated: "2026-09-22T14:04:51.497Z"
 last_activity: 2026-09-22
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 15
-  completed_plans: 14
-  percent: 93
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 
 Phase: 07 (security-hardening) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-22
 
-Progress: ░░░░░░░░░░ 50%
+Progress: ██████████ 100%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 07 P01 | 5min | 3 tasks | 4 files |
 | Phase 07 P02 | 3min | 3 tasks | 7 files |
 | Phase 07 P03 | 16min | 3 tasks | 6 files |
+| Phase 07 P04 | 5min | 2 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [Phase 07]: SEC-04 engine half: SummarizationEngine captures ConfigCorruptError into config_error (str) and runs on a deep copy of DEFAULT_CONFIG, is_configured() returns False while corruption is recorded, summarize() fails fast naming app_config.json, and the summary_error queue payload is sanitized at the source
 - [Phase 07]: SEC-02 UX half: settings_dialog.validate_settings_base_url returns (ok, url_or_message) and never raises; save_settings shows the reason and keeps the dialog open (typed key not lost) instead of persisting a non-https base_url, and a valid URL is normalized before update_config
 - [Phase 07]: SEC-04/05 UI half: TranscriberApp defers _show_config_error via root.after(200, ...) naming app_config.json, and _handle_summary_error sanitizes again with secrets=(api_key,), limit=500 with a 'нет деталей' placeholder so the dialog is never blank; _handle_transcription_error stays unsanitized (accepted T-07-03-05)
+- [Phase 07]: 07-04 verification-only plan: full suite 93/93 OK plus 34/34 static invariants prove the hardening primitives are CALLED in the shipped paths (validate_base_url in post_chat and before the dialog persists, sanitize_error_detail at request/queue/display, os.replace replacing in-place truncation, ConfigCorruptError surfaced); no source files changed (files_modified: [])
+- [Phase 07]: 07-04 blocking human-verify checkpoint resolved by operator typing approved: corrupt-config dialog naming app_config.json (SEC-04), refused http://example.com/v1 with the dialog staying open (SEC-02), owner-only icacls with no (I)/Users/Everyone entries (SEC-01), and a live summary error containing no key/Bearer and not blank (SEC-05)
+- [Phase 07]: 07-04 live-config note: current app_config.json sha256 is d827c34a… (250 bytes, trailing newline from the 07-02 atomic writer) vs the 07-02/07-03 snapshot bd409a72…; the app re-saved it in the interim. Hash stable across the suite run, mtime unchanged, gitignored, never printed/committed
 
 ### Roadmap Evolution
 
@@ -127,6 +131,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-22T09:10:34.823Z
-Stopped at: Completed 07-03-SUMMARY.md
+Last session: 2026-09-22T14:04:51.493Z
+Stopped at: Completed 07-04-SUMMARY.md
 Resume file: None

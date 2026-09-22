@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
 - [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
 - [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
-- [ ] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning
+- [x] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning (completed 2026-09-22)
 
 ## Phase Details
 ### Phase 1: GUI & File Selection
@@ -132,7 +132,7 @@ Plans:
 - [x] 07-01-PLAN.md — Outbound request safety: https-only base_url, cross-origin redirect header stripping, secret redaction
 - [x] 07-02-PLAN.md — Config at rest: atomic owner-only writes, explicit corruption errors, pinned dependencies
 - [x] 07-03-PLAN.md — Wire the hardening into the engine and UI: startup warning, dialog guard, sanitized error display
-- [ ] 07-04-PLAN.md — End-to-end verification: full suite, static invariant audit, human confirmation
+- [x] 07-04-PLAN.md — End-to-end verification: full suite, static invariant audit, human confirmation
 
 ## Progress
 
@@ -147,4 +147,4 @@ Phases execute in numeric order: 1 → 7
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
-| 7. Security Hardening | 2/4 | In Progress|  |
+| 7. Security Hardening | 4/4 | Complete   | 2026-09-22 |
