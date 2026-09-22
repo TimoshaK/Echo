@@ -131,7 +131,7 @@ Plans:
 Plans:
 - [x] 07-01-PLAN.md — Outbound request safety: https-only base_url, cross-origin redirect header stripping, secret redaction
 - [x] 07-02-PLAN.md — Config at rest: atomic owner-only writes, explicit corruption errors, pinned dependencies
-- [ ] 07-03-PLAN.md — Wire the hardening into the engine and UI: startup warning, dialog guard, sanitized error display
+- [x] 07-03-PLAN.md — Wire the hardening into the engine and UI: startup warning, dialog guard, sanitized error display
 - [ ] 07-04-PLAN.md — End-to-end verification: full suite, static invariant audit, human confirmation
 
 ## Progress

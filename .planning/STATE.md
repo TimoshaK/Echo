@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-02-SUMMARY.md
-last_updated: "2026-09-22T08:52:21.549Z"
+stopped_at: Completed 07-03-SUMMARY.md
+last_updated: "2026-09-22T09:10:34.828Z"
 last_activity: 2026-09-22
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 15
-  completed_plans: 13
-  percent: 87
+  completed_plans: 14
+  percent: 93
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 07 (security-hardening) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-09-22
 
@@ -61,6 +61,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 06 P06 | 1min | 2 tasks | 0 files |
 | Phase 07 P01 | 5min | 3 tasks | 4 files |
 | Phase 07 P02 | 3min | 3 tasks | 7 files |
+| Phase 07 P03 | 16min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting current work:
 - [Phase 07]: Plan 07-01 deviations were plan-internal contradictions: two sanitize tests corrected (x*300 is swallowed by the long-token rule; .rstrip() yields 302 not 303) and the _http_opener docstring reworded to omit the forbidden install_opener literal
 - [Phase 07]: SEC-01/04: save_config is atomic (mkstemp+fsync+os.replace) and owner-only (0600 + non-fatal Windows icacls ACL); load_config raises ConfigCorruptError(path, detail) for any unusable existing file while a missing file still yields defaults, and DEFAULT_CONFIG is no longer aliasable
 - [Phase 07]: SEC-06: requirements.txt pinned to the installed versions (numpy corrected DOWN to 2.4.4 from the unmet >=2.5.0 floor; torch pinned 2.14.0 without the +cu130 local tag); unused srt removed and README/SETUP_GUIDE made truthful
+- [Phase 07]: SEC-04 engine half: SummarizationEngine captures ConfigCorruptError into config_error (str) and runs on a deep copy of DEFAULT_CONFIG, is_configured() returns False while corruption is recorded, summarize() fails fast naming app_config.json, and the summary_error queue payload is sanitized at the source
+- [Phase 07]: SEC-02 UX half: settings_dialog.validate_settings_base_url returns (ok, url_or_message) and never raises; save_settings shows the reason and keeps the dialog open (typed key not lost) instead of persisting a non-https base_url, and a valid URL is normalized before update_config
+- [Phase 07]: SEC-04/05 UI half: TranscriberApp defers _show_config_error via root.after(200, ...) naming app_config.json, and _handle_summary_error sanitizes again with secrets=(api_key,), limit=500 with a 'нет деталей' placeholder so the dialog is never blank; _handle_transcription_error stays unsanitized (accepted T-07-03-05)
 
 ### Roadmap Evolution
 
@@ -123,6 +127,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-22T08:52:21.545Z
-Stopped at: Completed 07-02-SUMMARY.md
+Last session: 2026-09-22T09:10:34.823Z
+Stopped at: Completed 07-03-SUMMARY.md
 Resume file: None
