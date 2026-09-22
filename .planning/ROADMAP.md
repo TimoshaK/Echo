@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Summarization** - Generate brief summary of transcription via OpenRouter LLM API
 - [x] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
 - [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
-- [ ] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior
+- [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
 
 ## Phase Details
 
@@ -112,7 +112,7 @@ Plans:
 - [x] 06-03-PLAN.md — UI foundation (ui/theme, ui/build, ui/settings_dialog)
 - [x] 06-04-PLAN.md — UI application window (ui/app: TranscriberApp)
 - [x] 06-05-PLAN.md — Thin launcher, delete app_config.py, end-to-end smoke
-- [ ] 06-06-PLAN.md — Widget-construction parity proof + human visual verification
+- [x] 06-06-PLAN.md — Widget-construction parity proof + human visual verification
 
 ## Progress
 
@@ -126,4 +126,4 @@ Phases execute in numeric order: 1 → 6
 | 3. Summarization | 1/1 | Completed | 2026-09-04 |
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
-| 6. Refactor main.py into echo package | 4/6 | In Progress|  |
+| 6. Refactor main.py into echo package | 6/6 | Complete   | 2026-09-22 |
