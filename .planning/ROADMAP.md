@@ -17,10 +17,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Summarization** - Generate brief summary of transcription via OpenRouter LLM API
 - [x] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
 - [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
-- [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
+- [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
+- [ ] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning
 
 ## Phase Details
-
 ### Phase 1: GUI & File Selection
 **Goal**: Users can launch the application and select audio files for transcription
 **Depends on**: Nothing (first phase)
@@ -114,10 +114,27 @@ Plans:
 - [x] 06-05-PLAN.md — Thin launcher, delete app_config.py, end-to-end smoke
 - [x] 06-06-PLAN.md — Widget-construction parity proof + human visual verification
 
+### Phase 7: Security Hardening
+**Goal**: Eliminate the security weaknesses found in the audit — plaintext secret exposure, unvalidated base_url/SSRF, redirect credential leak, silent config fallback, unsanitized API error details, and unpinned dependencies
+**Depends on**: Phase 6
+**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06
+**Success Criteria** (what must be TRUE):
+  1. app_config.json is written with owner-only permissions and atomically (no partial writes)
+  2. base_url is validated (https-only; http/non-standard schemes rejected or blocked with a clear message)
+  3. HTTP redirects do not forward the Authorization header to a different host
+  4. A corrupted config produces an explicit user-visible message instead of a silent default fallback
+  5. API error details shown in the UI are sanitized
+  6. Dependency versions are pinned and the unused `srt` dependency is removed
+**Plans**: 0 plans
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 7 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 6
+Phases execute in numeric order: 1 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -127,3 +144,4 @@ Phases execute in numeric order: 1 → 6
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
+| 7. Security Hardening | 0/1 | Not started | - |
