@@ -76,7 +76,7 @@ Each task was committed atomically (TDD: test → feat):
 2. **Task 2: SafeRedirectHandler + private opener (SEC-03)** - `1cd8ade` (test, RED) → `8e000e7` (feat, GREEN)
 3. **Task 3: validate_base_url + redacted error branches (SEC-02/SEC-05)** - `7d17944` (test, RED) → `aaf334c` (feat, GREEN)
 
-**Plan metadata:** `_pending_` (docs: complete plan)
+**Plan metadata:** `8c6bcc5` (docs: complete network-layer security hardening plan)
 
 ## Files Created/Modified
 
