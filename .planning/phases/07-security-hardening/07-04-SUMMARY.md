@@ -73,7 +73,7 @@ This plan changed no source files, so there are **no per-task commits** — matc
 1. **Task 1: Full suite plus static invariant audit** - no commit (verification only; the audit script was written transiently to `%TEMP%\opencode\phase7_static_audit.py`, never committed)
 2. **Task 2: Human confirmation of the four non-portable security behaviours** - no commit (blocking `checkpoint:human-verify`; no code written, operator replied `approved`)
 
-**Plan metadata:** recorded by the final `docs(07-04): complete end-to-end verification plan` commit.
+**Plan metadata:** `f86a66e` (docs(07-04): complete end-to-end verification plan) → `41c8c64` (docs(07-04): normalize ROADMAP.md line endings to LF).
 
 ## Verification Evidence
 
@@ -108,6 +108,7 @@ None - plan executed exactly as written. No source code was modified and no devi
 - The suite still emits the benign, already-documented `_FakeResponse` deallocator `ResourceWarning` from `tests/test_llm_client.py` at interpreter shutdown (07-01/07-03 both noted it). `Ran 93 tests / OK`, exit 0 — left as-is.
 - `py -3 -m unittest ...` writes progress to stderr, which PowerShell surfaces as a `NativeCommandError`-styled block even on success; the `Ran 93 tests ... OK` line and exit code 0 confirm success.
 - `.planning/config.json` shows as `M` in `git status` with zero changed lines (a pre-existing stale-index artifact noted by 07-03); left untouched and not staged.
+- The `roadmap update-plan-progress` writer rewrote `.planning/ROADMAP.md` with CRLF endings and a stray mid-line CR (the rest of the repository stores LF blobs). A follow-up commit (`41c8c64`) normalized the file back to LF and removed the stray CR; the committed ROADMAP blob is now `CR=0 LF=150`, matching the repo convention. No content changed beyond the intended 3-line phase-progress update.
 
 ## Stub Tracking
 
@@ -138,5 +139,5 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - Files: `07-04-SUMMARY.md` created on disk; no source files modified (verified by `git status --short`).
-- Commits: plan contributes no per-task commits (`files_modified: []`); the metadata commit is recorded below.
+- Commits: plan contributes no per-task commits (`files_modified: []`); metadata commits `f86a66e` and `41c8c64` verified present via `git log --oneline`.
 - Automated evidence re-confirmed on the current tree: `Ran 93 tests / OK`, `STATIC_AUDIT_OK` (34/34), `APP_REGRESSION_OK interview`, `PRE_CHECKPOINT_OK`.
