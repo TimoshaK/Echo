@@ -67,10 +67,10 @@
 ### Безопасность (Security)
 
 - [ ] **SEC-01**: `app_config.json` записывается с правами владельца (0600) и атомарно
-- [ ] **SEC-02**: `base_url` валидируется — только `https://`, `http`/нестандартные схемы отклоняются
-- [ ] **SEC-03**: HTTP-редиректы не переносят заголовок `Authorization` на другой хост
+- [x] **SEC-02**: `base_url` валидируется — только `https://`, `http`/нестандартные схемы отклоняются
+- [x] **SEC-03**: HTTP-редиректы не переносят заголовок `Authorization` на другой хост
 - [ ] **SEC-04**: Повреждённый конфиг даёт явное сообщение пользователю вместо молчаливого fallback
-- [ ] **SEC-05**: Детали ошибок API санитизируются перед выводом в UI
+- [x] **SEC-05**: Детали ошибок API санитизируются перед выводом в UI
 - [ ] **SEC-06**: Версии зависимостей закреплены; неиспользуемый `srt` удалён
 
 ## Out of Scope
@@ -110,10 +110,10 @@
 | REFR-02 | Phase 6 | Complete |
 | REFR-03 | Phase 6 | Complete |
 | SEC-01 | Phase 7 | Pending |
-| SEC-02 | Phase 7 | Pending |
-| SEC-03 | Phase 7 | Pending |
+| SEC-02 | Phase 7 | Complete |
+| SEC-03 | Phase 7 | Complete |
 | SEC-04 | Phase 7 | Pending |
-| SEC-05 | Phase 7 | Pending |
+| SEC-05 | Phase 7 | Complete |
 | SEC-06 | Phase 7 | Pending |
 
 **Coverage:**

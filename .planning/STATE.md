@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-06-PLAN.md (widget parity + human approved)
-last_updated: "2026-09-22T07:38:31.887Z"
-last_activity: 2026-09-22 -- Phase 07 planning complete
+stopped_at: Completed 07-01-SUMMARY.md
+last_updated: "2026-09-22T08:43:59.109Z"
+last_activity: 2026-09-22
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 15
-  completed_plans: 11
-  percent: 73
+  completed_plans: 12
+  percent: 80
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-03)
 
 **Core value:** Быстрая и точная транскрипция аудиофайлов в удобном интерфейсе с сохранением результатов в читаемых форматах.
-**Current focus:** Phase 06 — refactor-main-into-echo-package
+**Current focus:** Phase 07 — security-hardening
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
+Phase: 07 (security-hardening) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-09-22 -- Phase 07 planning complete
+Last activity: 2026-09-22
 
 Progress: ░░░░░░░░░░ 50%
 
@@ -59,6 +59,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 06 P04 | 93min | 2 tasks | 1 files |
 | Phase 06 P05 | 3min | 2 tasks | 3 files |
 | Phase 06 P06 | 1min | 2 tasks | 0 files |
+| Phase 07 P01 | 5min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 06]: REFR-02 mechanical proof: 50/50 tkinter constructors textually identical to baseline 6887892 (WIDGET_PARITY_EXACT); comparator kept transient in temp (not committed, D-05 convention)
 - [Phase 06]: 06-06 human-verify checkpoint (blocking) resolved by operator typing approved; visual parity + select-transcribe-summarize-save + root app_config.json all confirmed (T-06-26 named attestation)
 - [Phase 06]: 06-06 has files_modified=[] so no per-task commits: Task 1 wrote only temp, Task 2 changed no files; plan contributes a single metadata commit
+- [Phase 07]: sanitize_error_detail order: cap input to 4000 -> remove configured secrets (>=4 chars) -> Bearer/sk-/userinfo/long-token regex -> flatten whitespace -> bound with ellipsis; InvalidBaseUrlError derives from ValueError so is_layer_failure does not retry a bad base_url (T-07-01-01)
+- [Phase 07]: SafeRedirectHandler strips Authorization whenever the redirect changes scheme, host or port; requests go through a private cached build_opener and the process-global urllib opener is never mutated (T-07-01-02/06)
+- [Phase 07]: Plan 07-01 deviations were plan-internal contradictions: two sanitize tests corrected (x*300 is swallowed by the long-token rule; .rstrip() yields 302 not 303) and the _http_opener docstring reworded to omit the forbidden install_opener literal
 
 ### Roadmap Evolution
 
@@ -116,6 +120,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-22T04:48:00.496Z
-Stopped at: Completed 06-06-PLAN.md (widget parity + human approved)
+Last session: 2026-09-22T08:43:59.106Z
+Stopped at: Completed 07-01-SUMMARY.md
 Resume file: None
