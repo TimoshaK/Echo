@@ -130,7 +130,7 @@ Plans:
 
 Plans:
 - [x] 07-01-PLAN.md — Outbound request safety: https-only base_url, cross-origin redirect header stripping, secret redaction
-- [ ] 07-02-PLAN.md — Config at rest: atomic owner-only writes, explicit corruption errors, pinned dependencies
+- [x] 07-02-PLAN.md — Config at rest: atomic owner-only writes, explicit corruption errors, pinned dependencies
 - [ ] 07-03-PLAN.md — Wire the hardening into the engine and UI: startup warning, dialog guard, sanitized error display
 - [ ] 07-04-PLAN.md — End-to-end verification: full suite, static invariant audit, human confirmation
 
@@ -147,4 +147,4 @@ Phases execute in numeric order: 1 → 7
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
-| 7. Security Hardening | 0/4 | Ready to execute | - |
+| 7. Security Hardening | 2/4 | In Progress|  |

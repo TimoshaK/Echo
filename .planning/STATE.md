@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-SUMMARY.md
-last_updated: "2026-09-22T08:43:59.109Z"
+stopped_at: Completed 07-02-SUMMARY.md
+last_updated: "2026-09-22T08:52:21.549Z"
 last_activity: 2026-09-22
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 15
-  completed_plans: 12
-  percent: 80
+  completed_plans: 13
+  percent: 87
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 07 (security-hardening) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-09-22
 
@@ -60,6 +60,7 @@ Progress: ░░░░░░░░░░ 50%
 | Phase 06 P05 | 3min | 2 tasks | 3 files |
 | Phase 06 P06 | 1min | 2 tasks | 0 files |
 | Phase 07 P01 | 5min | 3 tasks | 4 files |
+| Phase 07 P02 | 3min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase 07]: sanitize_error_detail order: cap input to 4000 -> remove configured secrets (>=4 chars) -> Bearer/sk-/userinfo/long-token regex -> flatten whitespace -> bound with ellipsis; InvalidBaseUrlError derives from ValueError so is_layer_failure does not retry a bad base_url (T-07-01-01)
 - [Phase 07]: SafeRedirectHandler strips Authorization whenever the redirect changes scheme, host or port; requests go through a private cached build_opener and the process-global urllib opener is never mutated (T-07-01-02/06)
 - [Phase 07]: Plan 07-01 deviations were plan-internal contradictions: two sanitize tests corrected (x*300 is swallowed by the long-token rule; .rstrip() yields 302 not 303) and the _http_opener docstring reworded to omit the forbidden install_opener literal
+- [Phase 07]: SEC-01/04: save_config is atomic (mkstemp+fsync+os.replace) and owner-only (0600 + non-fatal Windows icacls ACL); load_config raises ConfigCorruptError(path, detail) for any unusable existing file while a missing file still yields defaults, and DEFAULT_CONFIG is no longer aliasable
+- [Phase 07]: SEC-06: requirements.txt pinned to the installed versions (numpy corrected DOWN to 2.4.4 from the unmet >=2.5.0 floor; torch pinned 2.14.0 without the +cu130 local tag); unused srt removed and README/SETUP_GUIDE made truthful
 
 ### Roadmap Evolution
 
@@ -120,6 +123,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-22T08:43:59.106Z
-Stopped at: Completed 07-01-SUMMARY.md
+Last session: 2026-09-22T08:52:21.545Z
+Stopped at: Completed 07-02-SUMMARY.md
 Resume file: None
