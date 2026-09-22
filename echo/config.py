@@ -27,18 +27,56 @@ DEFAULT_CONFIG = {
 }
 
 
-def load_config() -> dict:
-    try:
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-            cfg = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return json.loads(json.dumps(DEFAULT_CONFIG))
+class ConfigCorruptError(RuntimeError):
+    """app_config.json существует, но прочитать его не удалось (SEC-04).
 
-    for key, value in DEFAULT_CONFIG.items():
-        cfg.setdefault(key, value)
-    for key, value in DEFAULT_CONFIG["llm"].items():
-        cfg["llm"].setdefault(key, value)
-    return cfg
+    Отдельный тип вместо молчаливого отката к DEFAULT_CONFIG: иначе потеря
+    API-ключа выглядит для пользователя как "консоль просто перестала работать",
+    а причина (повреждённый файл) не видна вообще.
+    """
+
+    def __init__(self, path: Path, detail: str) -> None:
+        self.path = path
+        self.detail = detail
+        super().__init__(f"Файл настроек повреждён или недоступен ({path}): {detail}")
+
+
+def load_config() -> dict:
+    """Прочитать конфиг, явно сообщая о повреждении (SEC-04).
+
+    FileNotFoundError -> дефолты: первый запуск это не ошибка.
+    Любая другая причина, по которой нельзя получить корректный объект
+    (нет доступа, битая кодировка, битый JSON, не тот тип на верхнем уровне
+    или в секции "llm"), -> ConfigCorruptError. Молчаливый откат запрещён:
+    он скрывает потерю ключа и может отправить запрос на чужой дефолтный URL.
+    """
+    try:
+        raw = CONFIG_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return json.loads(json.dumps(DEFAULT_CONFIG))
+    except (OSError, UnicodeDecodeError) as e:
+        raise ConfigCorruptError(CONFIG_PATH, f"файл недоступен: {e}") from e
+
+    try:
+        cfg = json.loads(raw)
+    except ValueError as e:
+        raise ConfigCorruptError(CONFIG_PATH, f"некорректный JSON: {e}") from e
+
+    if not isinstance(cfg, dict):
+        raise ConfigCorruptError(CONFIG_PATH, "корень файла должен быть объектом JSON")
+
+    llm = cfg.get("llm")
+    if llm is not None and not isinstance(llm, dict):
+        raise ConfigCorruptError(CONFIG_PATH, "секция 'llm' должна быть объектом JSON")
+
+    # Глубокие копии: DEFAULT_CONFIG не должен оказаться тем же объектом, что и
+    # результат, иначе запись через результат мутирует дефолты (было в старом коде).
+    merged = json.loads(json.dumps(DEFAULT_CONFIG))
+    for key, value in cfg.items():
+        if key != "llm":
+            merged[key] = value
+    merged["llm"] = {**DEFAULT_CONFIG["llm"], **cfg.get("llm", {})}
+    return merged
 
 
 def _restrict_windows_acl(path: Path) -> None:
