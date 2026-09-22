@@ -1,5 +1,20 @@
 """Error contracts: LLM API errors and transcription error message mapping."""
 
+import re
+
+REDACTED = "[REDACTED]"
+
+# Вход обрезается ДО первого regex-прохода: это и есть защита от ReDoS
+# (T-07-01-05). Все шаблоны ниже используют простые квантификаторы — вложенных нет.
+MAX_SANITIZE_INPUT = 4000
+
+_BEARER_RE = re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{4,}")
+_SK_RE = re.compile(r"\bsk-[A-Za-z0-9_-]{4,}")
+_USERINFO_RE = re.compile(r"(?i)\b(https?)://[^/\s:@]+:[^/\s@]+@")
+_LONG_TOKEN_RE = re.compile(r"\b[A-Za-z0-9_-]{40,}\b")
+_CONTROL_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+_WS_RE = re.compile(r"\s+")
+
 
 class SummaryApiError(RuntimeError):
     """Ошибка обращения к LLM API.
@@ -13,6 +28,15 @@ class SummaryApiError(RuntimeError):
     def __init__(self, message: str, code: int | None = None) -> None:
         super().__init__(message)
         self.code = code
+
+
+class InvalidBaseUrlError(ValueError):
+    """base_url не прошёл проверку (SEC-02).
+
+    Наследуемся от ValueError, а НЕ от SummaryApiError, осознанно: `is_layer_failure`
+    возвращает True для `code is None`, поэтому ошибка-наследник SummaryApiError
+    заставила бы лестницу слоёв повторить заведомо неверный запрос три раза.
+    """
 
 
 def map_transcription_error(error: str) -> str:
@@ -38,3 +62,39 @@ def map_transcription_error(error: str) -> str:
         return "Недостаточно памяти. Попробуйте файл меньшего размера."
     else:
         return "Ошибка при обработке аудио. Попробуйте другой файл."
+
+
+def sanitize_error_detail(detail, secrets=(), limit: int = 300) -> str:
+    """Обезвредить текст ошибки перед показом пользователю (SEC-05).
+
+    Порядок операций важен и не должен меняться:
+      1. обрезать вход до MAX_SANITIZE_INPUT (защита от ReDoS);
+      2. вырезать известные секреты длиной >= 4 символов (короткий секрет вырезал бы
+         половину сообщения);
+      3. вырезать шаблоны: Bearer-токены, `sk-` ключи, логин/пароль внутри URL,
+         длинные (>= 40 символов) опейк-токены;
+      4. схлопнуть управляющие символы и пробелы в один пробел;
+      5. обрезать до `limit` с многоточием.
+
+    Пустая строка на выходе означает "в деталях не осталось ничего полезного";
+    решение о тексте-заглушке принимает вызывающий код.
+    """
+    if detail is None:
+        return ""
+    text = detail if isinstance(detail, str) else str(detail)
+    text = text[:MAX_SANITIZE_INPUT]
+
+    for secret in secrets or ():
+        if isinstance(secret, str) and len(secret) >= 4:
+            text = text.replace(secret, REDACTED)
+
+    text = _BEARER_RE.sub("Bearer " + REDACTED, text)
+    text = _SK_RE.sub("sk-" + REDACTED, text)
+    text = _USERINFO_RE.sub(r"\1://" + REDACTED + "@", text)
+    text = _LONG_TOKEN_RE.sub(REDACTED, text)
+    text = _CONTROL_RE.sub(" ", text)
+    text = _WS_RE.sub(" ", text).strip()
+
+    if len(text) > limit:
+        text = text[:limit].rstrip() + "..."
+    return text

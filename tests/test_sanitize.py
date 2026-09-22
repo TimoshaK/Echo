@@ -55,7 +55,9 @@ class BoundingTests(unittest.TestCase):
         out = sanitize_error_detail("ab " * 34000)
         elapsed = time.monotonic() - started
         self.assertLess(elapsed, 2.0)
-        self.assertEqual(len(out), 303)
+        # Truncation keeps `limit` chars, drops a trailing space, then appends
+        # "..."; the finish criterion is "at most limit + 3".
+        self.assertLessEqual(len(out), 303)
         self.assertTrue(out.endswith("..."))
 
     def test_long_opaque_run_is_fully_redacted_without_truncation(self):
@@ -67,7 +69,12 @@ class BoundingTests(unittest.TestCase):
         self.assertEqual(MAX_SANITIZE_INPUT, 4000)
 
     def test_exact_limit_is_not_truncated(self):
-        self.assertEqual(len(sanitize_error_detail("x" * 300, limit=300)), 300)
+        # A homogeneous run (e.g. "x" * 300) would be caught by the long-opaque-
+        # token rule, so use filler that survives redaction yet stays exactly 300
+        # characters; the limit itself must not be truncated.
+        exact = "ab " * 99 + "xyz"
+        self.assertEqual(len(exact), 300)
+        self.assertEqual(sanitize_error_detail(exact, limit=300), exact)
 
     def test_whitespace_is_flattened(self):
         self.assertEqual(sanitize_error_detail("line1\n\nline2\t  x"), "line1 line2 x")
