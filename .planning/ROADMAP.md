@@ -125,11 +125,14 @@ Plans:
   4. A corrupted config produces an explicit user-visible message instead of a silent default fallback
   5. API error details shown in the UI are sanitized
   6. Dependency versions are pinned and the unused `srt` dependency is removed
-**Plans**: 0 plans
+**Plans**: 4 plans
 **UI hint**: no
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 7 to break down)
+- [ ] 07-01-PLAN.md — Outbound request safety: https-only base_url, cross-origin redirect header stripping, secret redaction
+- [ ] 07-02-PLAN.md — Config at rest: atomic owner-only writes, explicit corruption errors, pinned dependencies
+- [ ] 07-03-PLAN.md — Wire the hardening into the engine and UI: startup warning, dialog guard, sanitized error display
+- [ ] 07-04-PLAN.md — End-to-end verification: full suite, static invariant audit, human confirmation
 
 ## Progress
 
@@ -144,4 +147,4 @@ Phases execute in numeric order: 1 → 7
 | 4. Output Storage | 1/1 | Completed | 2026-09-04 |
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
-| 7. Security Hardening | 0/1 | Not started | - |
+| 7. Security Hardening | 0/4 | Ready to execute | - |
