@@ -95,10 +95,11 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 6 added: Рефакторинг main.py (1467 строк) в пакет echo/ с подпакетом echo/ui/ (config, presets, errors, llm_client, srt, engines, ui); main.py — тонкий лаунчер; CONFIG_PATH указывает на корневой app_config.json; поведение не меняется
+- Phase 7 added: Security Hardening — chmod 0600 + атомарная запись app_config.json; валидация base_url (https-only); безопасные редиректы (без переноса Authorization); явное сообщение при повреждённом конфиге; санитизация деталей ошибок API; пины версий + удаление неиспользуемого srt
 
 ### Pending Todos
 
-None yet.
+- [Consider Docker for headless CLI batch transcription](./todos/pending/2026-09-22-consider-docker-for-headless-cli-batch-transcription.md)
 
 ### Blockers/Concerns
 
