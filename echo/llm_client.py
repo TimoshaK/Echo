@@ -10,7 +10,41 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from echo.errors import SummaryApiError
+from echo.errors import InvalidBaseUrlError, SummaryApiError, sanitize_error_detail
+
+MSG_BASE_URL_EMPTY = "Base URL не задан. Укажите адрес вида https://openrouter.ai/api/v1"
+MSG_BASE_URL_SCHEME = (
+    "Base URL должен использовать https:// (получено: {scheme}). "
+    "Незащищённый http:// и другие схемы запрещены."
+)
+MSG_BASE_URL_HOST = "Base URL не содержит имени хоста: {url}"
+MSG_BASE_URL_USERINFO = "Base URL не должен содержать логин/пароль (@)."
+
+
+def validate_base_url(url: str) -> str:
+    """Проверить base_url: только https, только с хостом, без userinfo (SEC-02).
+
+    Возвращает нормализованный адрес (без завершающего слэша). Бросает
+    `InvalidBaseUrlError` — НЕ `SummaryApiError`, чтобы лестница слоёв не приняла
+    это за провал слоя и не повторила заведомо неверный запрос.
+    """
+    if not isinstance(url, str) or not url.strip():
+        raise InvalidBaseUrlError(MSG_BASE_URL_EMPTY)
+
+    candidate = url.strip()
+    parts = urllib.parse.urlsplit(candidate)
+    scheme = parts.scheme.lower()
+
+    if scheme != "https":
+        raise InvalidBaseUrlError(MSG_BASE_URL_SCHEME.format(scheme=scheme or "(нет)"))
+
+    if not parts.netloc or not parts.hostname or parts.netloc != parts.netloc.strip():
+        raise InvalidBaseUrlError(MSG_BASE_URL_HOST.format(url=candidate))
+
+    if "@" in parts.netloc:
+        raise InvalidBaseUrlError(MSG_BASE_URL_USERINFO)
+
+    return candidate.rstrip("/")
 
 
 class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -61,14 +95,16 @@ def post_chat(config: dict, payload: dict) -> str:
     принимает `summarize` через `is_layer_failure`.
     """
     llm = config["llm"]
+    base_url = validate_base_url(llm.get("base_url", ""))
+    api_key = llm.get("api_key", "")
     req = urllib.request.Request(
-        f"{llm['base_url']}/chat/completions",
+        f"{base_url}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
             # T-260921-02: api_key уходит только в заголовок, не в тело и не
             # в текст ошибок.
-            "Authorization": f"Bearer {llm['api_key']}",
+            "Authorization": f"Bearer {api_key}",
         },
         method="POST",
     )
@@ -77,10 +113,18 @@ def post_chat(config: dict, payload: dict) -> str:
         with _http_opener().open(req, timeout=60) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", errors="replace")[:500]
-        raise SummaryApiError(f"Ошибка API ({e.code}): {detail}", code=e.code)
+        detail = sanitize_error_detail(
+            e.read().decode("utf-8", errors="replace"),
+            secrets=(api_key,),
+        )
+        raise SummaryApiError(
+            f"Ошибка API ({e.code}): {detail or 'нет деталей'}", code=e.code
+        )
     except urllib.error.URLError as e:
-        raise SummaryApiError(f"Сетевая ошибка: {e.reason}", code=0)
+        raise SummaryApiError(
+            f"Сетевая ошибка: {sanitize_error_detail(e.reason, secrets=(api_key,)) or 'нет деталей'}",
+            code=0,
+        )
 
     try:
         content = data["choices"][0]["message"]["content"]
