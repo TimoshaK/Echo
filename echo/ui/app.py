@@ -5,7 +5,7 @@ import queue
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-from echo.errors import map_transcription_error
+from echo.errors import map_transcription_error, sanitize_error_detail
 from echo.presets import DEFAULT_PRESET, SUMMARY_PRESETS
 from echo.srt import build_srt_content
 from echo.summarization_engine import SummarizationEngine
@@ -39,6 +39,10 @@ class TranscriberApp:
         self.selected_file: str | None = None
         self.engine = TranscriptionEngine()
         self.summarizer = SummarizationEngine()
+        # SEC-04: если конфиг повреждён, показываем явное сообщение после того,
+        # как окно построено (messagebox до построения UI блокирует старт).
+        if self.summarizer.config_error:
+            self.root.after(200, self._show_config_error)
         self.last_transcript = ""
         self.last_segments: list = []
         self.last_summary = ""
@@ -241,6 +245,20 @@ class TranscriberApp:
         self.last_summary = message["text"]
         self.summary_btn.configure(state="normal")
 
+    def _show_config_error(self) -> None:
+        """Показать явное сообщение о повреждённом конфиге (SEC-04).
+
+        Молчаливый откат к дефолтам скрывал от пользователя потерю ключа;
+        теперь причина видна, а транскрибация продолжает работать.
+        """
+        messagebox.showerror(
+            "Повреждённый конфиг",
+            "Не удалось прочитать app_config.json.\n\n"
+            f"{self.summarizer.config_error}\n\n"
+            "Настройки LLM сброшены на значения по умолчанию. Транскрибация "
+            "работает; конспект нужно настроить заново в API SETTINGS.",
+        )
+
     def _handle_summary_error(self, error: str) -> None:
         """Handle summary generation error."""
 
@@ -252,9 +270,16 @@ class TranscriberApp:
             text="SUMMARY FAILED"
         )
         self.summary_btn.configure(state="normal")
+
+        # SEC-05: второй барьер перед показом. Ключ передаём явно, а не полагаемся
+        # только на шаблоны: так вырезается точное значение из конфига.
+        llm = self.summarizer.config.get("llm") if isinstance(self.summarizer.config, dict) else None
+        api_key = llm.get("api_key", "") if isinstance(llm, dict) else ""
+        safe_error = sanitize_error_detail(error, secrets=(api_key,), limit=500)
+
         messagebox.showerror(
             "Ошибка конспекта",
-            f"Не удалось сгенерировать конспект.\n\n{error}",
+            f"Не удалось сгенерировать конспект.\n\n{safe_error or 'нет деталей'}",
         )
 
     def generate_summary(self) -> None:
