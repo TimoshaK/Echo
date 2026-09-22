@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Output Storage** - Choose storage location and save results in .txt and .srt formats
 - [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
 - [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
-- [x] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning (completed 2026-09-22)
+- [x] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning (completed 2026-09-22)
 
 ## Phase Details
 ### Phase 1: GUI & File Selection
