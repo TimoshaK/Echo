@@ -21,6 +21,7 @@
 - ✓ Выбор типа конспекта (пресеты дейли/лекция/интервью/клиент/свободный) + JSON response_format — Phase 3 / quick 260921-ofx
 - ✓ Сохранение результатов в .txt и .srt (с таймкодами) — Phase 4
 - ✓ Рефакторинг монолита в пакет `echo/` (config, presets, errors, llm_client, srt, engines, ui/) без изменения поведения — Phase 6
+- ✓ Security hardening: права 0600 + атомарная запись `app_config.json`, https-only `base_url`, отсечение `Authorization` при cross-origin редиректе, явная ошибка при повреждённом конфиге, санитизация ошибок API, пины зависимостей — Phase 7
 
 ### Active
 
@@ -62,9 +63,13 @@ Python-приложение с tkinter GUI (пакет `echo/`, тонкий л�
 | Пресеты конспекта со своими JSON-схемами через response_format + слоистый fallback | Структурированный вывод и совместимость с разными моделями | ✓ Good |
 | Пакет `echo/` вместо монолита `main.py` | Читаемость, разделение слоёв, тестируемость | ✓ Good |
 | `CONFIG_PATH` привязан к корню репозитория | Сохраняет существующий `app_config.json` при переносе модуля | ✓ Good |
+| `base_url` только `https://` | Предотвращает отправку API-ключа по открытому каналу | ✓ Good |
+| Отсечение `Authorization` при cross-origin редиректе | Защита ключа от слива через редирект | ✓ Good |
+| Секреты не пишутся в UI/логи (санитизация ошибок) | Снижает риск утечки ключа в диалогах | ✓ Good |
+| Тесты на stdlib `unittest` (без pytest) | Ноль новых зависимостей в фазе пиннинга | ✓ Good |
 
 ---
-*Last updated: 2026-09-22 after Phase 6 completion*
+*Last updated: 2026-09-22 after Phase 7 completion*
 
 ## Evolution
 
