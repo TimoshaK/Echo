@@ -112,6 +112,7 @@ Recent decisions affecting current work:
 
 - Phase 6 added: Рефакторинг main.py (1467 строк) в пакет echo/ с подпакетом echo/ui/ (config, presets, errors, llm_client, srt, engines, ui); main.py — тонкий лаунчер; CONFIG_PATH указывает на корневой app_config.json; поведение не меняется
 - Phase 7 added: Security Hardening — chmod 0600 + атомарная запись app_config.json; валидация base_url (https-only); безопасные редиректы (без переноса Authorization); явное сообщение при повреждённом конфиге; санитизация деталей ошибок API; пины версий + удаление неиспользуемого srt
+- Phase 8 added: Supply-chain hardening — requirements.in + pip-tools --generate-hashes; CPU-lock requirements.txt и отдельный CUDA-lock requirements-cuda.txt (torch +cu130); dev-lock (pip-tools, pip-audit); установка через --require-hashes; обновление invariant-теста и README/SETUP_GUIDE; локальный гайд pip-audit без CI
 
 ### Pending Todos
 
