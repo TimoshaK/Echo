@@ -168,4 +168,4 @@ Phases execute in numeric order: 1 → 8
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
-| 8. Supply-chain hardening | 4/4 | Complete   | 2026-09-23 |
+| 8. Supply-chain hardening | 4/4 | Complete    | 2026-09-23 |
