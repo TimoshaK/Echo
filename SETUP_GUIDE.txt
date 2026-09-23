@@ -217,9 +217,21 @@
  4. КОМПОНЕНТ 2: PIP-ПАКЕТЫ (Python-библиотеки)
 --------------------------------------------------------------------------------
 
-Ставятся одной командой из файла requirements.txt:
+Ставятся одной командой из lock-файла requirements.txt. Установка идёт в режиме
+проверки хэшей: pip сверит каждый скачанный архив с хэшем из lock-файла и
+откажется ставить то, что не совпало.
 
-    py -m pip install -r requirements.txt
+    py -m pip install --require-hashes -r requirements.txt
+
+Это CPU-сборка. Для NVIDIA-видеокарты используйте CUDA-lock (torch с индекса
+PyTorch, ~2.8 ГБ):
+
+    py -m pip install --require-hashes -r requirements-cuda.txt
+
+Инструменты разработки (pip-tools, pip-audit, pyinstaller) — отдельный
+lock-файл, для запуска приложения не нужны:
+
+    py -m pip install -r requirements-dev.txt
 
 
  4.1 openai-whisper  —  ГЛАВНЫЙ ДВИЖОК
@@ -277,16 +289,36 @@
  Источники: pypi.org/project/<numpy|numba|llvmlite|tiktoken|tqdm>
 
 
- 4.4 ПИНЫ ВЕРСИЙ И УДАЛЕНИЕ srt
+ 4.4 ПИНЫ ВЕРСИЙ И ХЭШИ (LOCK-ФАЙЛЫ)
  --------------------------------------------------------------------------
- В requirements.txt версии закреплены точными пинами (==):
+ requirements.txt — не рукописный список, а скомпилированный pip-tools
+ lock: в нём зафиксированы ВСЕ прямые и транзитивные пакеты, каждый —
+ с точным пином (==) и хэшами (--hash=sha256:...).
+
+ Прямые зависимости (они же в requirements.in):
    openai-whisper==20250625
-   torch==2.14.0
+   torch==2.14.0            (CPU-сборка с PyPI)
    numpy==2.4.4
    tqdm==4.70.0
 
- Пакет `srt` из requirements.txt УДАЛЁН: код его не импортирует, а субтитры
- .srt приложение формирует вручную (echo/srt.py: build_srt_content).
+ requirements-cuda.txt — тот же набор пакетов, но torch==2.14.0+cu130 с
+ индекса https://download.pytorch.org/whl/cu130.
+ requirements-dev.txt  — pip-tools, pip-audit, pyinstaller (только для
+ разработки; pyinstaller нужен для сборки standalone-исполняемого файла).
+
+ Пакет `srt` в зависимостях ОТСУТСТВУЕТ: код его не импортирует, а
+ субтитры .srt приложение формирует вручную (echo/srt.py:
+ build_srt_content).
+
+
+ 4.5 ПРОВЕРКА УЯЗВИМОСТЕЙ (pip-audit)  —  ЛОКАЛЬНО, БЕЗ CI
+ --------------------------------------------------------------------------
+     py -m pip install -r requirements-dev.txt
+     py -m pip_audit -r requirements.txt --progress-spinner off
+
+ pip-audit разбирает lock-файл вместе со строками --hash=. Ненулевой код
+ возврата означает найденные уязвимости. Чтобы обновить пакет: поменять
+ пин в requirements.in, перегенерировать lock, повторить аудит.
 
 
 --------------------------------------------------------------------------------

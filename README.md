@@ -196,7 +196,9 @@ self.model = whisper.load_model("base")
 | tqdm           | Отображение прогресса в Whisper                    |
 | OpenRouter LLM | Конспект через подключаемую LLM                    |
 
-Основные зависимости проекта находятся в `requirements.txt`; версии закреплены точными пинами (`==`) для воспроизводимых сборок.
+Основные зависимости закреплены в `requirements.txt` — это скомпилированный `pip-tools` lock: все
+прямые и транзитивные пакеты зафиксированы точными пинами (`==`) и хэшами (`--hash=sha256:`).
+Установка выполняется в режиме проверки хэшей (`--require-hashes`).
 
 Конспект обращается к LLM через стандартную библиотеку `urllib.request` — **новых зависимостей для конспекта нет**.
 
@@ -235,9 +237,36 @@ source .venv/bin/activate
 
 ### 3. Install dependencies
 
+Установка идёт в режиме проверки хэшей: pip сверит каждый скачанный архив с хэшем из lock-файла и
+откажется устанавливать что-либо, что не совпало.
+
 ```bash
-pip install -r requirements.txt
+pip install --require-hashes -r requirements.txt
 ```
+
+`requirements.txt` — CPU-сборка (`torch` с PyPI). Для NVIDIA-видеокарты используйте CUDA-lock:
+
+```bash
+pip install --require-hashes -r requirements-cuda.txt
+```
+
+CUDA-lock тянет `torch==2.14.0+cu130` с индекса `https://download.pytorch.org/whl/cu130` (~2.8 ГБ).
+На машине без NVIDIA-видеокарты он не нужен.
+
+Инструменты разработки (`pip-tools`, `pip-audit`, `pyinstaller`) лежат в отдельном lock-файле и для
+запуска приложения не требуются:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Два замечания:
+
+* `openai-whisper` публикуется только как sdist, поэтому pip собирает его из исходников. Зависимости
+  сборочного окружения (PEP 517) **не** покрыты `--require-hashes` — это остаточный риск.
+* `torch==2.14.0` (CPU-lock) и `torch==2.14.0+cu130` (CUDA-lock): pip считает требование `==2.14.0`
+  выполненным, если уже установлен `2.14.0+cu130`, поэтому в существующем CUDA-окружении CPU-lock не
+  понизит torch. В чистом окружении он поставит CPU-сборку.
 
 ### 4. Install FFmpeg (system binary, not pip)
 
@@ -268,6 +297,52 @@ brew install ffmpeg
 ```bash
 ffmpeg -version
 ```
+
+### Regenerating the locks
+
+Lock-файлы генерируются `pip-tools`; команда генерации записана в заголовке каждого файла.
+
+CPU- и dev-lock (чистый PyPI; хэши берутся из PyPI JSON API, поэтому загрузок нет):
+
+```bash
+pip-compile --generate-hashes --allow-unsafe --strip-extras --no-emit-index-url --no-emit-trusted-host --output-file requirements.txt requirements.in
+pip-compile --generate-hashes --allow-unsafe --strip-extras --no-emit-index-url --no-emit-trusted-host --output-file requirements-dev.txt requirements-dev.in
+```
+
+CUDA-lock генерируется иначе. Для версии `+cu130` `--generate-hashes` не может получить хэши из PyPI
+JSON API и пытается скачать **все 24** CUDA-колеса (десятки ГБ). Поэтому выходной файл «засевается»
+из CPU-lock: блок `torch` заменяется на `torch==2.14.0+cu130` с хэшами, опубликованными индексом
+PyTorch, после чего `--reuse-hashes` переиспользует все хэши и ничего не скачивает:
+
+```bash
+pip-compile --generate-hashes --reuse-hashes --allow-unsafe --strip-extras --output-file requirements-cuda.txt requirements-cuda.in
+```
+
+Хэши `torch==2.14.0+cu130` берутся из HTML индекса `https://download.pytorch.org/whl/cu130/torch/`,
+где они опубликованы во фрагменте URL (`#sha256=...`). Версия в URL закодирована как
+`2.14.0%2Bcu130`.
+
+Всегда задавайте `CUSTOM_COMPILE_COMMAND`: без него pip-tools записывает в заголовок
+несуществующий флаг `--no-index`.
+
+## Dependency audit (pip-audit)
+
+Локальная проверка зависимостей на известные уязвимости. **Без CI** — команда запускается вручную:
+
+```bash
+py -3 -m pip install -r requirements-dev.txt
+py -3 -m pip_audit -r requirements.txt --progress-spinner off
+```
+
+`pip-audit` разбирает lock-файл вместе со строками `--hash=`. Ненулевой код возврата означает
+найденные уязвимости. Для CUDA-lock:
+
+```bash
+py -3 -m pip_audit -r requirements-cuda.txt --progress-spinner off
+```
+
+Обновление уязвимого пакета: изменить пин в соответствующем `.in`-файле, перегенерировать lock
+(см. выше) и повторить аудит.
 
 ## Run
 
