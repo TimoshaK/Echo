@@ -145,11 +145,14 @@ Plans:
   3. Installation is documented and works via `pip install --require-hashes -r <lockfile>`
   4. The pinning invariant test (`tests/test_requirements_pinning.py`) is updated to the new contract and passes
   5. A local `pip-audit` guide is documented (no CI); dev-only tooling lives in a separate `requirements-dev` lock
-**Plans**: 0 plans
+**Plans**: 4 plans
 **UI hint**: no
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 8 to break down)
+- [ ] 08-01-PLAN.md — Lock toolchain + CPU lock and dev lock with hashes (SUP-01, SUP-05)
+- [ ] 08-02-PLAN.md — CUDA lock (`torch==2.14.0+cu130`) seeded from the CPU lock (SUP-02)
+- [ ] 08-03-PLAN.md — Rewrite the pinning invariant test + document hash-checked install and pip-audit (SUP-03, SUP-04, SUP-05)
+- [ ] 08-04-PLAN.md — End-to-end verification: clean-venv hash-checked install, audits, CUDA confirmation (SUP-03)
 
 ## Progress
 
@@ -165,4 +168,4 @@ Phases execute in numeric order: 1 → 8
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
-| 8. Supply-chain hardening | 0/1 | Not started | - |
+| 8. Supply-chain hardening | 0/4 | Not started | - |
