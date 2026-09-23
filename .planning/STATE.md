@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-01-SUMMARY.md
-last_updated: "2026-09-23T15:34:56.988Z"
+stopped_at: Completed 08-02-SUMMARY.md
+last_updated: "2026-09-23T15:39:13.983Z"
 last_activity: 2026-09-23
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 19
-  completed_plans: 16
-  percent: 84
+  completed_plans: 17
+  percent: 89
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 08 (supply-chain-hardening) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-09-23
 
@@ -65,6 +65,7 @@ Progress: ██████████ 100%
 | Phase 07 P03 | 16min | 3 tasks | 6 files |
 | Phase 07 P04 | 5min | 2 tasks | 0 files |
 | Phase 08 P01 | 4min | 3 tasks | 4 files |
+| Phase 08 P02 | 2min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Phase 08-01: requirements.txt is now a pip-compile CPU lock (24 packages, 634 sha256 hashes); requirements-dev.txt pins pip-tools/pip-audit/pyinstaller + transitive (391 hashes). The four SEC-06 direct pins are unchanged
 - [Phase 08]: Phase 08-01: --allow-unsafe is mandatory (torch declares setuptools>=77.0.3); without it pip-tools drops setuptools and --require-hashes fails. CUSTOM_COMPILE_COMMAND yields a truthful header with no spurious --no-index
 - [Phase 08]: Phase 08-01: pure-PyPI --generate-hashes sources every digest from the PyPI JSON API (zero wheel downloads). Negative control must tamper ALL hashes of a requirement: pip accepts a package if any single listed hash matches
+- [Phase 08]: Phase 08-02: requirements-cuda.txt pins torch==2.14.0+cu130 from https://download.pytorch.org/whl/cu130 with all 24 index-published sha256 hashes — a separate lock because the +cu130 build is not on PyPI
+- [Phase 08]: Phase 08-02: the CUDA lock is a copy of the CPU lock with only the torch block swapped, compiled with pip-compile --generate-hashes --reuse-hashes so every hash is reused and ZERO CUDA wheels download; --emit-index-url stays ON (unlike 08-01's --no-emit-index-url) so --require-hashes can reach the cu130 wheel
+- [Phase 08]: Phase 08-02: proven parity — every non-torch package has identical version AND hash set in both locks, and the locked torch hashes equal the live cu130 index; the hash-checking mechanism accepts the file (Would install tqdm-4.70.0)
 
 ### Roadmap Evolution
 
@@ -137,6 +141,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-23T15:34:56.985Z
-Stopped at: Completed 08-01-SUMMARY.md
+Last session: 2026-09-23T15:39:13.980Z
+Stopped at: Completed 08-02-SUMMARY.md
 Resume file: None
