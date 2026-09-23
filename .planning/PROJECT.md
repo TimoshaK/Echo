@@ -22,6 +22,7 @@
 - ✓ Сохранение результатов в .txt и .srt (с таймкодами) — Phase 4
 - ✓ Рефакторинг монолита в пакет `echo/` (config, presets, errors, llm_client, srt, engines, ui/) без изменения поведения — Phase 6
 - ✓ Security hardening: права 0600 + атомарная запись `app_config.json`, https-only `base_url`, отсечение `Authorization` при cross-origin редиректе, явная ошибка при повреждённом конфиге, санитизация ошибок API, пины зависимостей — Phase 7
+- ✓ Supply-chain hardening: полностью зафиксированный lock зависимостей с хэшами (pip-tools), CPU + CUDA варианты torch, локальный гайд `pip-audit` — Phase 8
 
 ### Active
 
@@ -67,9 +68,11 @@ Python-приложение с tkinter GUI (пакет `echo/`, тонкий л�
 | Отсечение `Authorization` при cross-origin редиректе | Защита ключа от слива через редирект | ✓ Good |
 | Секреты не пишутся в UI/логи (санитизация ошибок) | Снижает риск утечки ключа в диалогах | ✓ Good |
 | Тесты на stdlib `unittest` (без pytest) | Ноль новых зависимостей в фазе пиннинга | ✓ Good |
+| Полный lock зависимостей с хэшами (pip-tools), CPU + CUDA варианты | Воспроизводимость и защита от supply-chain (подмена/вредоносная версия) | ✓ Good |
+| CUDA-lock через seed из CPU-lock + `--reuse-hashes` | Обходит массовую загрузку CUDA-колёс и `OSError(28)` | ✓ Good |
 
 ---
-*Last updated: 2026-09-22 after Phase 7 completion*
+*Last updated: 2026-09-23 after Phase 8 completion*
 
 ## Evolution
 
