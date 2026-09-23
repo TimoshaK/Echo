@@ -1,0 +1,6 @@
+# Direct runtime dependencies for Echo (source of truth for requirements.txt).
+# Regenerate the lock with the command recorded in requirements.txt's header.
+openai-whisper==20250625
+torch==2.14.0
+numpy==2.4.4
+tqdm==4.70.0

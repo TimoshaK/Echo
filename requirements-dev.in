@@ -1,0 +1,5 @@
+# Development-only tooling (source of truth for requirements-dev.txt).
+# Not needed to run Echo; used to regenerate and audit the locks.
+pip-tools==7.6.1
+pip-audit==2.10.1
+pyinstaller==6.19.0
