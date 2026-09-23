@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 08-03-SUMMARY.md
-last_updated: "2026-09-23T15:44:22.182Z"
+status: verifying
+stopped_at: Completed 08-04-SUMMARY.md
+last_updated: "2026-09-23T16:04:10.118Z"
 last_activity: 2026-09-23
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 19
-  completed_plans: 18
-  percent: 95
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 
 Phase: 08 (supply-chain-hardening) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-23
 
 Progress: ██████████ 100%
@@ -67,6 +67,7 @@ Progress: ██████████ 100%
 | Phase 08 P01 | 4min | 3 tasks | 4 files |
 | Phase 08 P02 | 2min | 3 tasks | 2 files |
 | Phase 08 P03 | 3min | 3 tasks | 3 files |
+| Phase 08 P04 | 1min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Phase 08-03: installed-version assertion scoped to the four DIRECT deps only; transitive lock pins float above installed (typing-extensions 4.15.0->4.16.0, urllib3 2.7.0->2.8.0, setuptools 82.0.1->84.0.0) so an all-pins assertion is unpassable. installed.split('+')[0] keeps torch valid (installed 2.14.0+cu130 vs CPU lock 2.14.0)
 - [Phase 08]: Phase 08-03: docs teach hash verification by default — README/SETUP_GUIDE install with --require-hashes for requirements.txt + requirements-cuda.txt (+ dev lock), README gains lock-regeneration and local pip-audit (no CI) sections; echo/srt.py mention preserved and no srt dependency re-asserted
 - [Phase 08]: Phase 08-03: non-vacuity proven by two monkey-patch mutation controls — stripping hashes from a CPU-lock copy yields 24 failures; a bogus numpy hash in a CUDA-lock copy yields 1 parity failure; full suite 106 tests OK. Both docs remain UTF-8 CRLF-only
+- [Phase 08]: Phase 08-04: verification-only plan (files_modified=[]) — no repo file changed; proven installability separately from well-formedness. Clean venv installed requirements.txt under --require-hashes (exit 0), installed tree matched the lock for all 24 packages on the CPU build (torch 2.14.0, not +cu130), pip check clean
+- [Phase 08]: Phase 08-04: pip-audit clean on both locks (No known vulnerabilities found); torch==2.14.0+cu130 is skipped because the +cu130 build is not on PyPI — expected, not a finding. Full suite 106 tests OK
+- [Phase 08]: Phase 08-04: blocking CUDA human-verify checkpoint (Task 3) resolved by operator typing approved; no torch.cuda.is_available() value was supplied, so none is recorded (False would have been acceptable for install verification on a non-GPU machine)
 
 ### Roadmap Evolution
 
@@ -146,6 +150,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-23T15:44:22.179Z
-Stopped at: Completed 08-03-SUMMARY.md
+Last session: 2026-09-23T16:04:01.262Z
+Stopped at: Completed 08-04-SUMMARY.md
 Resume file: None

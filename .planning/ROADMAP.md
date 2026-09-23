@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Packaging & Distribution** - Document dependencies (Python, FFmpeg), install process, and optional standalone executable
 - [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
 - [x] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning (completed 2026-09-22)
-- [ ] **Phase 8: Supply-chain hardening** - Fully pin the dependency tree with hashes (pip-tools), CPU + CUDA locks, and a local pip-audit guide
+- [x] **Phase 8: Supply-chain hardening** - Fully pin the dependency tree with hashes (pip-tools), CPU + CUDA locks, and a local pip-audit guide (completed 2026-09-23)
 
 ## Phase Details
 ### Phase 1: GUI & File Selection
@@ -152,7 +152,7 @@ Plans:
 - [x] 08-01-PLAN.md — Lock toolchain + CPU lock and dev lock with hashes (SUP-01, SUP-05)
 - [x] 08-02-PLAN.md — CUDA lock (`torch==2.14.0+cu130`) seeded from the CPU lock (SUP-02)
 - [x] 08-03-PLAN.md — Rewrite the pinning invariant test + document hash-checked install and pip-audit (SUP-03, SUP-04, SUP-05)
-- [ ] 08-04-PLAN.md — End-to-end verification: clean-venv hash-checked install, audits, CUDA confirmation (SUP-03)
+- [x] 08-04-PLAN.md — End-to-end verification: clean-venv hash-checked install, audits, CUDA confirmation (SUP-03)
 
 ## Progress
 
@@ -168,4 +168,4 @@ Phases execute in numeric order: 1 → 8
 | 5. Packaging & Distribution | 0/1 | Not started | - |
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
-| 8. Supply-chain hardening | 1/4 | In Progress|  |
+| 8. Supply-chain hardening | 4/4 | Complete   | 2026-09-23 |
