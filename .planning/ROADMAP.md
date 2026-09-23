@@ -151,7 +151,7 @@ Plans:
 Plans:
 - [x] 08-01-PLAN.md — Lock toolchain + CPU lock and dev lock with hashes (SUP-01, SUP-05)
 - [x] 08-02-PLAN.md — CUDA lock (`torch==2.14.0+cu130`) seeded from the CPU lock (SUP-02)
-- [ ] 08-03-PLAN.md — Rewrite the pinning invariant test + document hash-checked install and pip-audit (SUP-03, SUP-04, SUP-05)
+- [x] 08-03-PLAN.md — Rewrite the pinning invariant test + document hash-checked install and pip-audit (SUP-03, SUP-04, SUP-05)
 - [ ] 08-04-PLAN.md — End-to-end verification: clean-venv hash-checked install, audits, CUDA confirmation (SUP-03)
 
 ## Progress

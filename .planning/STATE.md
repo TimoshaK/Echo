@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-02-SUMMARY.md
-last_updated: "2026-09-23T15:39:13.983Z"
+stopped_at: Completed 08-03-SUMMARY.md
+last_updated: "2026-09-23T15:44:22.182Z"
 last_activity: 2026-09-23
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 19
-  completed_plans: 17
-  percent: 89
+  completed_plans: 18
+  percent: 95
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 08 (supply-chain-hardening) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-09-23
 
@@ -66,6 +66,7 @@ Progress: ██████████ 100%
 | Phase 07 P04 | 5min | 2 tasks | 0 files |
 | Phase 08 P01 | 4min | 3 tasks | 4 files |
 | Phase 08 P02 | 2min | 3 tasks | 2 files |
+| Phase 08 P03 | 3min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,10 @@ Recent decisions affecting current work:
 - [Phase 08]: Phase 08-02: requirements-cuda.txt pins torch==2.14.0+cu130 from https://download.pytorch.org/whl/cu130 with all 24 index-published sha256 hashes — a separate lock because the +cu130 build is not on PyPI
 - [Phase 08]: Phase 08-02: the CUDA lock is a copy of the CPU lock with only the torch block swapped, compiled with pip-compile --generate-hashes --reuse-hashes so every hash is reused and ZERO CUDA wheels download; --emit-index-url stays ON (unlike 08-01's --no-emit-index-url) so --require-hashes can reach the cu130 wheel
 - [Phase 08]: Phase 08-02: proven parity — every non-torch package has identical version AND hash set in both locks, and the locked torch hashes equal the live cu130 index; the hash-checking mechanism accepts the file (Would install tqdm-4.70.0)
+- [Phase 08]: Phase 08-03: tests/test_requirements_pinning.py rewritten to the hashed-lock contract (20 tests: 12 lock-contract + 8 doc) — parses pip-compile syntax, asserts every requirement pinned+hashed, no line silently skipped, CUDA torch swap + single cu130 index + CPU/CUDA parity, dev lock pins pip-tools/pip-audit/pyinstaller==6.19.0
+- [Phase 08]: Phase 08-03: installed-version assertion scoped to the four DIRECT deps only; transitive lock pins float above installed (typing-extensions 4.15.0->4.16.0, urllib3 2.7.0->2.8.0, setuptools 82.0.1->84.0.0) so an all-pins assertion is unpassable. installed.split('+')[0] keeps torch valid (installed 2.14.0+cu130 vs CPU lock 2.14.0)
+- [Phase 08]: Phase 08-03: docs teach hash verification by default — README/SETUP_GUIDE install with --require-hashes for requirements.txt + requirements-cuda.txt (+ dev lock), README gains lock-regeneration and local pip-audit (no CI) sections; echo/srt.py mention preserved and no srt dependency re-asserted
+- [Phase 08]: Phase 08-03: non-vacuity proven by two monkey-patch mutation controls — stripping hashes from a CPU-lock copy yields 24 failures; a bogus numpy hash in a CUDA-lock copy yields 1 parity failure; full suite 106 tests OK. Both docs remain UTF-8 CRLF-only
 
 ### Roadmap Evolution
 
@@ -141,6 +146,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-23T15:39:13.980Z
-Stopped at: Completed 08-02-SUMMARY.md
+Last session: 2026-09-23T15:44:22.179Z
+Stopped at: Completed 08-03-SUMMARY.md
 Resume file: None

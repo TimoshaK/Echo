@@ -77,8 +77,8 @@
 
 - [x] **SUP-01**: CPU-lock транзитивных зависимостей с хэшами (pip-tools `--generate-hashes`)
 - [x] **SUP-02**: Отдельный CUDA-lock (`torch==2.14.0+cu130` через index-url)
-- [ ] **SUP-03**: Установка через `pip install --require-hashes` задокументирована и работает
-- [ ] **SUP-04**: Инвариант-тест `tests/test_requirements_pinning.py` обновлён под новый контракт и проходит
+- [x] **SUP-03**: Установка через `pip install --require-hashes` задокументирована и работает
+- [x] **SUP-04**: Инвариант-тест `tests/test_requirements_pinning.py` обновлён под новый контракт и проходит
 - [x] **SUP-05**: Локальный гайд `pip-audit` (без CI); dev-тулы в отдельном `requirements-dev` lock
 
 ## Out of Scope
@@ -125,8 +125,8 @@
 | SEC-06 | Phase 7 | Complete |
 | SUP-01 | Phase 8 | Complete |
 | SUP-02 | Phase 8 | Complete |
-| SUP-03 | Phase 8 | Pending |
-| SUP-04 | Phase 8 | Pending |
+| SUP-03 | Phase 8 | Complete |
+| SUP-04 | Phase 8 | Complete |
 | SUP-05 | Phase 8 | Complete |
 
 **Coverage:**
