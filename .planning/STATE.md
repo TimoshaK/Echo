@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-04-SUMMARY.md
-last_updated: "2026-09-23T15:17:39.495Z"
-last_activity: 2026-09-23 -- Phase 8 planning complete
+stopped_at: Completed 08-01-SUMMARY.md
+last_updated: "2026-09-23T15:34:56.988Z"
+last_activity: 2026-09-23
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 16
+  percent: 84
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-03)
 
 **Core value:** Быстрая и точная транскрипция аудиофайлов в удобном интерфейсе с сохранением результатов в читаемых форматах.
-**Current focus:** Phase 07 — security-hardening
+**Current focus:** Phase 08 — supply-chain-hardening
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 08 (supply-chain-hardening) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-09-23 -- Phase 8 planning complete
+Last activity: 2026-09-23
 
 Progress: ██████████ 100%
 
@@ -64,6 +64,7 @@ Progress: ██████████ 100%
 | Phase 07 P02 | 3min | 3 tasks | 7 files |
 | Phase 07 P03 | 16min | 3 tasks | 6 files |
 | Phase 07 P04 | 5min | 2 tasks | 0 files |
+| Phase 08 P01 | 4min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-04 verification-only plan: full suite 93/93 OK plus 34/34 static invariants prove the hardening primitives are CALLED in the shipped paths (validate_base_url in post_chat and before the dialog persists, sanitize_error_detail at request/queue/display, os.replace replacing in-place truncation, ConfigCorruptError surfaced); no source files changed (files_modified: [])
 - [Phase 07]: 07-04 blocking human-verify checkpoint resolved by operator typing approved: corrupt-config dialog naming app_config.json (SEC-04), refused http://example.com/v1 with the dialog staying open (SEC-02), owner-only icacls with no (I)/Users/Everyone entries (SEC-01), and a live summary error containing no key/Bearer and not blank (SEC-05)
 - [Phase 07]: 07-04 live-config note: current app_config.json sha256 is d827c34a… (250 bytes, trailing newline from the 07-02 atomic writer) vs the 07-02/07-03 snapshot bd409a72…; the app re-saved it in the interim. Hash stable across the suite run, mtime unchanged, gitignored, never printed/committed
+- [Phase 08]: Phase 08-01: requirements.txt is now a pip-compile CPU lock (24 packages, 634 sha256 hashes); requirements-dev.txt pins pip-tools/pip-audit/pyinstaller + transitive (391 hashes). The four SEC-06 direct pins are unchanged
+- [Phase 08]: Phase 08-01: --allow-unsafe is mandatory (torch declares setuptools>=77.0.3); without it pip-tools drops setuptools and --require-hashes fails. CUSTOM_COMPILE_COMMAND yields a truthful header with no spurious --no-index
+- [Phase 08]: Phase 08-01: pure-PyPI --generate-hashes sources every digest from the PyPI JSON API (zero wheel downloads). Negative control must tamper ALL hashes of a requirement: pip accepts a package if any single listed hash matches
 
 ### Roadmap Evolution
 
@@ -133,6 +137,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-22T14:04:51.493Z
-Stopped at: Completed 07-04-SUMMARY.md
+Last session: 2026-09-23T15:34:56.985Z
+Stopped at: Completed 08-01-SUMMARY.md
 Resume file: None
