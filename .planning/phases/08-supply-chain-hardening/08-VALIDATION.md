@@ -26,8 +26,8 @@ created: 2026-09-23
 **Why `unittest` and not `pytest`:** this phase's whole point is "pin every dependency with hashes".
 Adding `pytest` would mean either pinning a test framework the app does not ship, or leaving an
 unhashed dev tool in the runtime path. Phase 7 already established `unittest` for the same reason;
-Phase 8 keeps it. (The dev-tooling lock does add `pip-tools` and `pip-audit` — both dev-only, both
-in `requirements-dev.txt`, neither imported by the suite.)
+Phase 8 keeps it. (The dev-tooling lock does add `pip-tools`, `pip-audit` and `pyinstaller` — all dev-only,
+all in `requirements-dev.txt`, none imported by the suite.)
 
 **Why no `tests/__init__.py`:** `py -3 -m unittest discover -s tests` puts the repository root on
 `sys.path` (so `import echo.config` resolves) and treats `tests/` as the start directory. Omitting the

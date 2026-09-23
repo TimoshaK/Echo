@@ -282,9 +282,9 @@ $env:CUSTOM_COMPILE_COMMAND = "pip-compile --generate-hashes --allow-unsafe --st
 py -3 -m piptools compile --generate-hashes --allow-unsafe --strip-extras --no-emit-index-url --no-emit-trusted-host --output-file requirements-dev.txt requirements-dev.in
 ```
 
-`requirements-dev.in` = `pip-tools==7.6.1`, `pip-audit==2.10.1` (exactly what SUP-05 names;
-`pyinstaller` is deliberately **excluded** — Phase 5 owns packaging, and pulling it in would create a
-cross-phase conflict).
+`requirements-dev.in` = `pip-tools==7.6.1`, `pip-audit==2.10.1`, `pyinstaller==6.19.0` (SUP-05 plus the
+user decision to pin the packaging tool now; `pyinstaller-hooks-contrib` is pinned transitively by
+pip-compile and is NOT listed in the `.in` file).
 
 **`pip-audit` against a hashed lock — VERIFIED:**
 
