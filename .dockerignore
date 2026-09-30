@@ -1,0 +1,11 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.pyc
+build/
+dist/
+.planning/
+app_config.json
+tests/__pycache__/
+*.exe

@@ -26,9 +26,10 @@ DIRECT_PINS = {
 }
 
 # pip-compile emits a requirement as `name==version \` followed by one
-# `    --hash=sha256:<hex> \` line per acceptable archive. The final hash of a
-# block carries no trailing backslash; `# via` and `#` lines are comments.
-REQUIREMENT_RE = re.compile(r"^([A-Za-z0-9._-]+)==([^\s\\]+)\s*\\$")
+# `    --hash=sha256:<hex> \` line per acceptable archive, and an optional
+# environment marker for platform-conditional deps (`name==version ; marker \`).
+# The final hash of a block carries no trailing backslash; `# via` and `#` are comments.
+REQUIREMENT_RE = re.compile(r"^([A-Za-z0-9._-]+)==([^\s;\\]+)\s*(?:;[^\\]*)?\\$")
 HASH_RE = re.compile(r"^\s+--hash=sha256:([0-9a-f]{64})\s*\\?$")
 DECLARED_RE = re.compile(r"^[A-Za-z0-9._-]+==")
 
