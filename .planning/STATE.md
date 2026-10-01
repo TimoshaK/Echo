@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-04-SUMMARY.md
-last_updated: "2026-10-01T03:26:01.801Z"
-last_activity: 2026-10-01 -- Phase 09 planning complete
+stopped_at: Completed 09-01-SUMMARY.md
+last_updated: "2026-10-01T03:43:22.276Z"
+last_activity: 2026-10-01
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 23
-  completed_plans: 19
-  percent: 83
+  completed_plans: 20
+  percent: 87
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-03)
 
 **Core value:** Быстрая и точная транскрипция аудиофайлов в удобном интерфейсе с сохранением результатов в читаемых форматах.
-**Current focus:** Phase 08 — supply-chain-hardening
+**Current focus:** Phase 09 — containerized-gui-delivery
 
 ## Current Position
 
-Phase: 8
-Plan: Not started
+Phase: 09 (containerized-gui-delivery) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-10-01 -- Phase 09 planning complete
+Last activity: 2026-10-01
 
 Progress: ██████████ 100%
 
@@ -69,6 +69,7 @@ Progress: ██████████ 100%
 | Phase 08 P02 | 2min | 3 tasks | 2 files |
 | Phase 08 P03 | 3min | 3 tasks | 3 files |
 | Phase 08 P04 | 1min | 3 tasks | 1 files |
+| Phase 09 P01 | 10min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,9 @@ Recent decisions affecting current work:
 - [Phase 08]: Phase 08-04: verification-only plan (files_modified=[]) — no repo file changed; proven installability separately from well-formedness. Clean venv installed requirements.txt under --require-hashes (exit 0), installed tree matched the lock for all 24 packages on the CPU build (torch 2.14.0, not +cu130), pip check clean
 - [Phase 08]: Phase 08-04: pip-audit clean on both locks (No known vulnerabilities found); torch==2.14.0+cu130 is skipped because the +cu130 build is not on PyPI — expected, not a finding. Full suite 106 tests OK
 - [Phase 08]: Phase 08-04: blocking CUDA human-verify checkpoint (Task 3) resolved by operator typing approved; no torch.cuda.is_available() value was supplied, so none is recorded (False would have been acceptable for install verification on a non-GPU machine)
+- [Phase 09]: 09-01: VNC stack comes from Debian apt packages (x11vnc/novnc/websockify/xvfb), not pip, so Phase 8's --require-hashes lock stays untouched and Debian pins versions
+- [Phase 09]: 09-01: image EXPOSEs only 6080; x11vnc binds -localhost with optional VNC_PASSWORD; entrypoint uses ENTRYPOINT and anchors the lifecycle on python -m echo (wait APP_PID) with a trap for clean shutdown
+- [Phase 09]: 09-01: full docker build deferred to Plan 09-04; validated here with docker build --check (clean) because C: had 6.6 GB free vs a 5 GB image (multi-GB rebuild risk)
 
 ### Roadmap Evolution
 
@@ -152,6 +156,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-09-23T16:04:01.262Z
-Stopped at: Completed 08-04-SUMMARY.md
+Last session: 2026-10-01T03:43:22.273Z
+Stopped at: Completed 09-01-SUMMARY.md
 Resume file: None
