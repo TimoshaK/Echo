@@ -170,7 +170,7 @@ Plans:
 Plans:
 - [x] 09-01-PLAN.md — Dockerfile VNC stack + entrypoint (Xvfb + app + x11vnc + websockify) + static invariants
 - [x] 09-02-PLAN.md — ECHO_CONFIG_PATH override so a directory-mounted app_config.json is read/written
-- [ ] 09-03-PLAN.md — BUILD.md/README/SETUP_GUIDE deployment guide + doc invariants
+- [x] 09-03-PLAN.md — BUILD.md/README/SETUP_GUIDE deployment guide + doc invariants
 - [ ] 09-04-PLAN.md — End-to-end verification: build/run/HTTP+WS/config round-trip/save-load + human GUI check
 
 ## Progress

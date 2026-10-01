@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-10-01T03:47:26.747Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-10-01T03:54:29.507Z"
 last_activity: 2026-10-01
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 23
-  completed_plans: 21
-  percent: 91
+  completed_plans: 22
+  percent: 96
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-09-03)
 ## Current Position
 
 Phase: 09 (containerized-gui-delivery) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-10-01
 
@@ -71,6 +71,7 @@ Progress: ██████████ 100%
 | Phase 08 P04 | 1min | 3 tasks | 1 files |
 | Phase 09 P01 | 10min | 3 tasks | 3 files |
 | Phase 09 P02 | 2min | 2 tasks | 2 files |
+| Phase 09 P03 | ~4min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,9 @@ Recent decisions affecting current work:
 - [Phase 09]: 09-02: resolve_config_path(env=None) is a pure injectable helper; CONFIG_PATH = resolve_config_path() stays a plain module attribute so existing CONFIG_PATH monkey-patching tests keep working
 - [Phase 09]: 09-02: empty/whitespace ECHO_CONFIG_PATH falls back to the repository root, and ~ is expanded but the path is otherwise preserved; validate_base_url stays untouched (https-only, T-09-11)
 - [Phase 09]: 09-02: plan 02 delivered echo/config.py ECHO_CONFIG_PATH override + tests/test_config_env_override.py (8 tests); full suite 129/129 OK
+- [Phase 09]: 09-03: BUILD.md documents a single-line docker run (identical in PowerShell and bash); the config is supplied by a /config directory mount + ECHO_CONFIG_PATH, never a single-file mount (os.replace EBUSY)
+- [Phase 09]: 09-03: docs default to -p 127.0.0.1:6080:6080; LAN exposure is opt-in and paired with -e VNC_PASSWORD; noVNC is plain ws:// (TLS via reverse proxy); x11vnc stays loopback-only inside the container
+- [Phase 09]: 09-03: deployment documented via docker save/load (multi-GB offline tar) and registry; README + SETUP_GUIDE (Russian СЦЕНАРИЙ D) point at BUILD.md; 15 doc invariants incl. UTF-8+CRLF in tests/test_docker_docs.py; full suite 144/144 OK
 
 ### Roadmap Evolution
 
@@ -160,6 +164,6 @@ Last activity: 2026-09-22 - Completed quick task 260922-esl: README.md и SETUP_
 
 ## Session Continuity
 
-Last session: 2026-10-01T03:47:26.687Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-10-01T03:54:29.503Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
