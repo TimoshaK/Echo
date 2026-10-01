@@ -5,13 +5,31 @@ import os
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 
-# D-01: app_config.json lives in the REPOSITORY ROOT — one level above the echo/ package.
-# Do NOT use Path(__file__).parent here: that resolves to echo/app_config.json, which does
-# not exist, and load_config() would silently fall back to DEFAULT_CONFIG (empty API key),
-# breaking REFR-03 with no visible error.
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "app_config.json"
+
+def resolve_config_path(env: Mapping[str, str] | None = None) -> Path:
+    """Вернуть путь к app_config.json.
+
+    Приоритет — переменная окружения ECHO_CONFIG_PATH: в контейнере репозиторий
+    не является монтируемым томом, и entrypoint указывает на смонтированный
+    каталог (/config/app_config.json). Без переменной путь прежний — корень
+    репозитория, — поэтому REFR-03 сохраняется.
+    """
+    if env is None:
+        env = os.environ
+    override = env.get("ECHO_CONFIG_PATH")
+    if override and override.strip():
+        return Path(override).expanduser()
+    # D-01: app_config.json lives in the REPOSITORY ROOT — one level above the echo/ package.
+    # Do NOT use Path(__file__).parent here: that resolves to echo/app_config.json, which does
+    # not exist, and load_config() would silently fall back to DEFAULT_CONFIG (empty API key),
+    # breaking REFR-03 with no visible error.
+    return Path(__file__).resolve().parent.parent / "app_config.json"
+
+
+CONFIG_PATH = resolve_config_path()
 
 # SEC-01: права владельца для файла с API-ключом.
 CONFIG_FILE_MODE = 0o600
