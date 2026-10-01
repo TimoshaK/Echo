@@ -4,11 +4,15 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     DEBIAN_FRONTEND=noninteractive
 
-# ffmpeg (нужен Whisper) + библиотеки для Tkinter + шрифты (кириллица) + xvfb (на случай headless)
+# ffmpeg (Whisper) + Tk libraries + fonts (Cyrillic) + the VNC stack that makes the
+# GUI visible in a browser (Xvfb -> x11vnc -> noVNC/websockify).
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg \
         tk \
         xvfb \
+        x11vnc \
+        novnc \
+        websockify \
         xauth \
         fonts-dejavu \
         libx11-6 libxext6 libxrender1 libsm6 \
@@ -26,7 +30,6 @@ COPY requirements.txt ./
 # NOTE: torch itself is installed here WITHOUT hash verification, because the
 # hashed lock pins the Windows wheel. To hash-verify torch too, regenerate a
 # Linux CPU lock with `pip-compile --index-url https://download.pytorch.org/whl/cpu`.
-# TODO: generate that Linux CPU lock and switch this layer to it.
 RUN pip install --upgrade pip \
  && pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.0 \
  && pip install --require-hashes -r requirements.txt
@@ -34,7 +37,11 @@ RUN pip install --upgrade pip \
 COPY echo ./echo
 COPY main.py ./
 
-# GUI needs an X display. xvfb-run provides a virtual one so the app starts
-# headlessly; the window is not visible. For a visible/interactive GUI add a VNC
-# server (x11vnc + noVNC) or use X11 forwarding.
-CMD ["xvfb-run", "-a", "-s", "-screen 0 1280x800x24", "python", "-m", "echo"]
+# GUI delivery: entrypoint starts Xvfb, the app, x11vnc and noVNC (websockify).
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# noVNC web client + WebSocket proxy (http://localhost:6080/vnc.html).
+EXPOSE 6080
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
