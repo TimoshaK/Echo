@@ -164,11 +164,14 @@ Plans:
   2. The container starts Xvfb + `python -m echo` + x11vnc + websockify automatically via an entrypoint
   3. The corporate OpenAI-compatible **https** LLM endpoint is configurable via a mounted `app_config.json` (no change to `validate_base_url`)
   4. Deployment on another PC is documented (docker save/load or registry) including model/config/audio mounting
-**Plans**: 0 plans
+**Plans**: 4 plans
 **UI hint**: no
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 9 to break down)
+- [ ] 09-01-PLAN.md — Dockerfile VNC stack + entrypoint (Xvfb + app + x11vnc + websockify) + static invariants
+- [ ] 09-02-PLAN.md — ECHO_CONFIG_PATH override so a directory-mounted app_config.json is read/written
+- [ ] 09-03-PLAN.md — BUILD.md/README/SETUP_GUIDE deployment guide + doc invariants
+- [ ] 09-04-PLAN.md — End-to-end verification: build/run/HTTP+WS/config round-trip/save-load + human GUI check
 
 ## Progress
 
@@ -185,4 +188,4 @@ Phases execute in numeric order: 1 → 9
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
 | 8. Supply-chain hardening | 4/4 | Complete    | 2026-09-23 |
-| 9. Containerized GUI delivery | 0/1 | Not started | - |
+| 9. Containerized GUI delivery | 0/4 | Planned | - |
