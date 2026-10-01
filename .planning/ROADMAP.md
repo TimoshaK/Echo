@@ -169,7 +169,7 @@ Plans:
 
 Plans:
 - [x] 09-01-PLAN.md — Dockerfile VNC stack + entrypoint (Xvfb + app + x11vnc + websockify) + static invariants
-- [ ] 09-02-PLAN.md — ECHO_CONFIG_PATH override so a directory-mounted app_config.json is read/written
+- [x] 09-02-PLAN.md — ECHO_CONFIG_PATH override so a directory-mounted app_config.json is read/written
 - [ ] 09-03-PLAN.md — BUILD.md/README/SETUP_GUIDE deployment guide + doc invariants
 - [ ] 09-04-PLAN.md — End-to-end verification: build/run/HTTP+WS/config round-trip/save-load + human GUI check
 
@@ -188,4 +188,4 @@ Phases execute in numeric order: 1 → 9
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
 | 8. Supply-chain hardening | 4/4 | Complete    | 2026-09-23 |
-| 9. Containerized GUI delivery | 1/4 | In Progress|  |
+| 9. Containerized GUI delivery | 2/4 | In Progress|  |

@@ -85,7 +85,7 @@
 
 - [x] **CNTR-01**: GUI доступен через VNC (x11vnc + noVNC) в браузере на `:6080`
 - [x] **CNTR-02**: Entrypoint автоматически поднимает Xvfb + `python -m echo` + x11vnc + websockify
-- [ ] **CNTR-03**: Корпоративный OpenAI-совместимый **https** LLM настраивается через монтируемый `app_config.json` (без правки `validate_base_url`)
+- [x] **CNTR-03**: Корпоративный OpenAI-совместимый **https** LLM настраивается через монтируемый `app_config.json` (без правки `validate_base_url`)
 - [ ] **CNTR-04**: Развёртывание на другом ПК задокументировано (docker save/load или registry) с монтированием модели/конфига/аудио
 
 ## Out of Scope
@@ -137,7 +137,7 @@
 | SUP-05 | Phase 8 | Complete |
 | CNTR-01 | Phase 9 | Complete |
 | CNTR-02 | Phase 9 | Complete |
-| CNTR-03 | Phase 9 | Pending |
+| CNTR-03 | Phase 9 | Complete |
 | CNTR-04 | Phase 9 | Pending |
 
 **Coverage:**
