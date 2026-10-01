@@ -162,7 +162,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `docker run -p 6080:6080 echo:cpu` serves the tkinter GUI at `http://localhost:6080/vnc.html`
   2. The container starts Xvfb + `python -m echo` + x11vnc + websockify automatically via an entrypoint
-  3. The corporate corporate OpenAI-compatible **https** LLM endpoint is configurable via a mounted `app_config.json` (no change to `validate_base_url`)
+  3. The corporate OpenAI-compatible **https** LLM endpoint is configurable via a mounted `app_config.json` (no change to `validate_base_url`)
   4. Deployment on another PC is documented (docker save/load or registry) including model/config/audio mounting
 **Plans**: 0 plans
 **UI hint**: no
