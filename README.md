@@ -370,6 +370,17 @@ py -3 -m echo
 
 При первом запуске Whisper скачает выбранную модель.
 
+## Run in Docker (browser GUI)
+
+Тот же GUI можно запустить в контейнере: образ поднимает виртуальный дисплей и отдаёт окно в браузер через VNC (x11vnc + noVNC) на порту `6080`.
+
+```powershell
+docker build -t echo:cpu .
+docker run --rm -p 127.0.0.1:6080:6080 -v "${PWD}/config:/config" -e ECHO_CONFIG_PATH=/config/app_config.json -v echo-whisper:/root/.cache/whisper -v "${PWD}/audio:/root/audio" echo:cpu
+```
+
+Откройте <http://localhost:6080/vnc.html>. Корпоративный **https** endpoint задаётся в `app_config.json`, который подаётся **каталогом** `config/` (монтировать сам файл нельзя); аудио и кэш модели Whisper подключаются томами. Подробности о монтировании, безопасности порта и развёртывании на другом ПК (`docker save`/`load`) — в [BUILD.md](BUILD.md).
+
 ## Whisper models
 
 Сейчас Echo использует модель:
