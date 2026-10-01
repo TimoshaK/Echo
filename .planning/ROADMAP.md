@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Refactor main.py into echo package** - Split the monolithic main.py into the echo/ package with a UI subpackage, without changing behavior (completed 2026-09-22)
 - [x] **Phase 7: Security Hardening** - Harden secret handling, base_url validation, redirect safety, config integrity and dependency pinning (completed 2026-09-22)
 - [x] **Phase 8: Supply-chain hardening** - Fully pin the dependency tree with hashes (pip-tools), CPU + CUDA locks, and a local pip-audit guide (completed 2026-09-23)
+- [ ] **Phase 9: Containerized GUI delivery** - Serve the tkinter GUI via VNC in the Docker image (browser at :6080), configure a corporate https LLM endpoint, and document deployment on another PC
 
 ## Phase Details
 ### Phase 1: GUI & File Selection
@@ -154,10 +155,25 @@ Plans:
 - [x] 08-03-PLAN.md — Rewrite the pinning invariant test + document hash-checked install and pip-audit (SUP-03, SUP-04, SUP-05)
 - [x] 08-04-PLAN.md — End-to-end verification: clean-venv hash-checked install, audits, CUDA confirmation (SUP-03)
 
+### Phase 9: Containerized GUI delivery
+**Goal**: Make the app fully runnable on another PC via Docker Desktop with a visible GUI (browser VNC) and a corporate (https) OpenAI-compatible LLM endpoint, without weakening the https-only posture
+**Depends on**: Phase 8
+**Requirements**: CNTR-01, CNTR-02, CNTR-03, CNTR-04
+**Success Criteria** (what must be TRUE):
+  1. `docker run -p 6080:6080 echo:cpu` serves the tkinter GUI at `http://localhost:6080/vnc.html`
+  2. The container starts Xvfb + `python -m echo` + x11vnc + websockify automatically via an entrypoint
+  3. The corporate corporate OpenAI-compatible **https** LLM endpoint is configurable via a mounted `app_config.json` (no change to `validate_base_url`)
+  4. Deployment on another PC is documented (docker save/load or registry) including model/config/audio mounting
+**Plans**: 0 plans
+**UI hint**: no
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 9 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 8
+Phases execute in numeric order: 1 → 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -169,3 +185,4 @@ Phases execute in numeric order: 1 → 8
 | 6. Refactor main.py into echo package | 6/6 | Complete    | 2026-09-22 |
 | 7. Security Hardening | 4/4 | Complete    | 2026-09-22 |
 | 8. Supply-chain hardening | 4/4 | Complete    | 2026-09-23 |
+| 9. Containerized GUI delivery | 0/1 | Not started | - |
